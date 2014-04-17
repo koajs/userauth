@@ -28,6 +28,25 @@ var defaultOptions = {
   logoutPath: '/logout'
 };
 
+/**
+ * User auth middleware.
+ *
+ * @param {String|Regex|Function(pathname, ctx)} match, detect which url need to check user auth.
+ * @param {Object} [options]
+ *  - {Function(url, rootPath)} loginURLForamter, format the login url.
+ *  - {String} [rootPath], custom app url root path, default is '/'.
+ *  - {String} [loginPath], default is '/login'.
+ *  - {String} [loginCallbackPath], default is `options.loginPath + '/callback'`.
+ *  - {String} [logoutPath], default is '/logout'.
+ *  - {String} [userField], logined user field name on `this.session`, default is 'user', `this.session.user`.
+ *  - {Function* (ctx)} getUser, get user function, must get user info with `req`.
+ *  - {Function* (ctx, user)} [loginCallback], you can handle user login logic here,return [user, redirectUrl]
+ *  - {Function(ctx)} [loginCheck], return true meaning logined. default is `true`.
+ *  - {Function* (ctx, user)} [logoutCallback], you can handle user logout logic here.return redirectUrl
+ * @return {Function* (next)} userauth middleware
+ * @public
+ */
+
 module.exports = function (match, options) {
   options = options || {};
   copy(defaultOptions).to(options);
