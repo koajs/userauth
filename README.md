@@ -1,7 +1,6 @@
-koa-userauth [![Build Status](https://secure.travis-ci.org/node-modules/koa-userauth.svg)](http://travis-ci.org/node-modules/koa-userauth)
+koa-userauth
 =======
 
-[![NPM](https://nodei.co/npm/koa-userauth.png?downloads=true&stars=true)](https://nodei.co/npm/koa-userauth/)
 
 `koa` user auth abstraction layer middleware.
 
@@ -13,12 +12,12 @@ $ npm install koa-userauth
 
 ## Usage
 
-`koa-userauth` is dependent on [koa.sess](https://github.com/node-modules/koa-session).
+`koa-userauth` is dependent on [koa-generic-session](https://github.com/koajs/generic-session).
 
 ```js
 var koa = require('koa');
 var userauth = require('koa-userauth');
-var session = require('koa-sess');
+var session = require('koa-generic-session');
 
 var app = koa();
 app.keys = ['i m secret'];
@@ -63,19 +62,13 @@ app.use(userauth('/user', {
 
 ## Login flow
 
-```js
-/**
- * login flow:
- *
- * 1. unauth user, redirect to `$loginPath?redirect=$currentURL`
- * 2. user visit `$loginPath`, redirect to `options.loginURLForamter()` return login url.
- * 3. user visit $loginCallbackPath, handler login callback logic.
- * 4. If user login callback check success, will set `req.session[userField]`,
- *    and redirect to `$currentURL`.
- * 5. If login check callback error, next(err).
- * 6. user visit `$logoutPath`, set `req.session[userField] = null`, and redirect back.
- */
-```
+1. unauth user, redirect to `$loginPath?redirect=$currentURL`
+2. user visit `$loginPath`, redirect to `options.loginURLForamter()` return login url.
+3. user visit $loginCallbackPath, handler login callback logic.
+4. If user login callback check success, will set `req.session[userField]`,
+   and redirect to `$currentURL`.
+5. If login check callback error, next(err).
+6. user visit `$logoutPath`, set `req.session[userField] = null`, and redirect back.
 
 ## License
 

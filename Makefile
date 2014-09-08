@@ -34,7 +34,7 @@ test-cov:
 	@./node_modules/.bin/alicov coverage
 
 autod:
-	@./node_modules/.bin/autod $(REGISTRY) -w
+	@./node_modules/.bin/autod $(REGISTRY) -w --prefix="~" -k should
 	@$(MAKE) install
 
 .PHONY: test test-all
