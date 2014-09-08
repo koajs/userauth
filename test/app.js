@@ -11,7 +11,7 @@
  */
 
 var koa = require('koa');
-var session = require('koa-sess');
+var session = require('koa-generic-session');
 var userauth = require('..');
 var route = require('koa-route');
 
