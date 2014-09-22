@@ -12,9 +12,8 @@ jshint: install
 	@-./node_modules/.bin/jshint ./
 
 test:
-	@NODE_ENV=test ./node_modules/.bin/mocha \
+	@NODE_ENV=test ./node_modules/mocha/bin/mocha \
 		--harmony-generators \
-	  --bail \
 		--reporter $(REPORTER) \
 		--timeout $(TIMEOUT) \
 		--require should \
@@ -22,16 +21,25 @@ test:
 		$(TESTS)
 
 test-cov:
-	@NODE_ENV=test node --harmony-generators \
-		node_modules/.bin/istanbul cover --preserve-comments \
-		./node_modules/.bin/_mocha \
+	@NODE_ENV=test node --harmony \
+		node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha \
 		-- -u exports \
 		--reporter $(REPORTER) \
 		--timeout $(TIMEOUT) \
 		--require should \
 		$(MOCHA_OPTS) \
 		$(TESTS)
-	@./node_modules/.bin/alicov coverage
+
+test-travis:
+	@NODE_ENV=test node --harmony \
+		node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha \
+		--report lcovonly \
+		-- -u exports \
+		--reporter $(REPORTER) \
+		--timeout $(TIMEOUT) \
+		--require should \
+		$(MOCHA_OPTS) \
+		$(TESTS)
 
 autod:
 	@./node_modules/.bin/autod $(REGISTRY) -w --prefix="~" -k should
