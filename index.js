@@ -48,6 +48,11 @@ var defaultOptions = {
  */
 
 module.exports = function (match, options) {
+  // userauth(options)
+  if (arguments.length === 1) {
+    options = match;
+    match = null;
+  }
   options = options || {};
   copy(defaultOptions).to(options);
 
@@ -64,18 +69,37 @@ module.exports = function (match, options) {
   options.getUser = options.getUser;
   options.redirectHandler = options.redirectHandler || defaultRedirectHandler;
 
+  match = options.match || match;
+  var ignore = options.ignore;
+
   // need login checker
   var needLogin = match;
   if (is.string(match)) {
-    needLogin = match = route(match);
-  }
-  if (is.regExp(match)) {
+    needLogin = route(match);
+  } else if (is.regExp(match)) {
     needLogin = function (path) {
       return match.test(path);
     };
   }
+
   if (!is.function(needLogin)) {
-    needLogin = function () {};
+    if (is.string(ignore)) {
+      var pathMatch = route(ignore);
+      needLogin = function (path) {
+        return !pathMatch(path);
+      };
+    } else if (is.regExp(ignore)) {
+      needLogin = function (path) {
+        return !ignore.test(path);
+      };
+    } else if (is.function(ignore)) {
+      needLogin = function (path) {
+        return !ignore(path);
+      };
+    } else {
+      // ignore all
+      needLogin = function () {};
+    }
   }
 
   options.loginCallback = options.loginCallback || defaultLoginCallback;

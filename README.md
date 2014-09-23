@@ -22,7 +22,6 @@ koa-userauth
 [gittip-url]: https://www.gittip.com/dead-horse/
 
 
-
 `koa` user auth abstraction layer middleware.
 
 ## Install
@@ -44,7 +43,8 @@ var app = koa();
 app.keys = ['i m secret'];
 
 app.use(session());
-app.use(userauth('/user', {
+app.use(userauth({
+  match: '/user',
   // auth system login url
   loginURLForamter: function (url) {
     return 'http://login.demo.com/login?redirect=' + url;
@@ -64,8 +64,10 @@ app.use(userauth('/user', {
 /**
  * User auth middleware.
  *
- * @param {String|Regex|Function(pathname, ctx)} match, detect which url need to check user auth.
  * @param {Object} [options]
+ *  - {String|Regex|Function(pathname, ctx)} match, detect which url need to check user auth.
+ *  - {String|Regex|Function(pathname, ctx)} ignore, detect which url no need to check user auth.
+ *      If `match` exists, this argument will be ignored.
  *  - {Function(url, rootPath)} loginURLForamter, format the login url.
  *  - {String} [rootPath], custom app url root path, default is '/'.
  *  - {String} [loginPath], default is '/login'.

@@ -1,12 +1,12 @@
 TESTS = test/*.test.js
-REPORTER = tap
+REPORTER = spec
 TIMEOUT = 3000
 MOCHA_OPTS =
-REGISTRY = --registry=http://r.cnpmjs.org
+REGISTRY = --registry=https://registry.npm.taobao.org
 
 install:
 	@npm install $(REGISTRY) \
-		--disturl=http://dist.cnpmjs.org
+		--disturl=https://npm.taobao.org/dist
 
 jshint: install
 	@-./node_modules/.bin/jshint ./
