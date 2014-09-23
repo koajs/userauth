@@ -1,0 +1,5 @@
+coverage
+test
+.jshint*
+.travis.yml
+Makefile

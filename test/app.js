@@ -15,8 +15,7 @@ var session = require('koa-generic-session');
 var userauth = require('..');
 var route = require('koa-route');
 
-module.exports = function(match) {
-
+module.exports = function(match, ignore) {
   var app = koa();
   app.keys = ['i m secret'];
   app.use(session());
@@ -33,7 +32,9 @@ module.exports = function(match) {
     }
   });
 
-  app.use(userauth(match, {
+  app.use(userauth({
+    match: match,
+    ignore: ignore,
     loginURLForamter: function (url) {
       return '/mocklogin?redirect=' + url;
     },
