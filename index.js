@@ -1,7 +1,12 @@
-/*!
+/**!
  * koa-userauth - index.js
- * Copyright(c) 2014 dead_horse <dead_horse@qq.com>
+ *
+ * Copyright(c) koajs and other contributors.
  * MIT Licensed
+ *
+ * Authors:
+ *   dead_horse <dead_horse@qq.com>
+ *   fengmk2 <fengmk2@gmail.com> (http://fengmk2.github.com)
  */
 
 'use strict';
@@ -32,7 +37,7 @@ var defaultOptions = {
  * User auth middleware.
  *
  * @param {String|Regex|Function(pathname, ctx)} match, detect which url need to check user auth.
- * @param {Object} [options]
+ * @param {Object} options
  *  - {Function(url, rootPath)} loginURLForamter, format the login url.
  *  - {String} [rootPath], custom app url root path, default is '/'.
  *  - {String} [loginPath], default is '/login'.
@@ -47,13 +52,13 @@ var defaultOptions = {
  * @public
  */
 
-module.exports = function (match, options) {
-  // userauth(options)
-  if (arguments.length === 1) {
-    options = match;
-    match = null;
+module.exports = function (options) {
+  // userauth(match, options)
+  if (arguments.length === 2) {
+    options = arguments[1];
+    options.match = arguments[0];
   }
-  options = options || {};
+
   copy(defaultOptions).to(options);
 
   options.loginCallbackPath = options.loginCallbackPath
@@ -69,7 +74,7 @@ module.exports = function (match, options) {
   options.getUser = options.getUser;
   options.redirectHandler = options.redirectHandler || defaultRedirectHandler;
 
-  match = options.match || match;
+  var match = options.match;
   var ignore = options.ignore;
 
   // need login checker
@@ -99,6 +104,7 @@ module.exports = function (match, options) {
     } else {
       // ignore all
       needLogin = function () {};
+      debug('ignore all paths');
     }
   }
 
@@ -123,12 +129,23 @@ module.exports = function (match, options) {
    */
 
   return function* userauth(next) {
+    var loginRequired = !!needLogin(this.path);
+    debug('url: %s, path: %s, loginPath: %s, session exists: %s, login required: %s',
+      this.url, this.path, options.loginPath, !!this.session, loginRequired);
 
-    debug('url: %s, loginPath: %s, session exists: %s',
-      this.url, options.loginPath, !!this.session);
+    if (!this.session) {
+      debug('this.session not exists');
+      // ignore not match path
+      if (!loginRequired) {
+        debug('not match needLogin path, %j', this.path);
+        return yield* next;
+      }
+      debug('relogin again');
+      return yield* loginHandler.call(this, next);
+    }
 
     // get login path
-    if (!this.session || this.path === options.loginPath) {
+    if (this.path === options.loginPath) {
       debug('match login path');
       return yield* loginHandler.call(this, next);
     }
@@ -146,15 +163,15 @@ module.exports = function (match, options) {
     }
 
     // ignore not match path
-    if (!needLogin(this.path)) {
-      debug('not match needLogin path, %j', needLogin(this.path));
+    if (!loginRequired) {
+      debug('ignore %j', this.path);
       return yield* next;
     }
 
     if (this.session[options.userField]
       && options.loginCheck(this)) {
       // 4. user logined, next() handler
-      debug('already login');
+      debug('already logined');
       return yield* next;
     }
 
@@ -163,8 +180,9 @@ module.exports = function (match, options) {
     try {
       user = yield* options.getUser(this);
     } catch (err) {
-      console.error(err.stack);
+      console.error('[koa-userauth] options.getUser error: %s', err.stack);
     }
+
     if (!user) {
       debug('can not get user');
       var ctx = this;
@@ -186,6 +204,7 @@ module.exports = function (match, options) {
 
       return yield* options.redirectHandler.call(this, nextHandler);
     }
+
     debug('get user directly');
     var res = yield* options.loginCallback(this, user);
     var loginUser = res[0];

@@ -1,7 +1,12 @@
-/*!
- * koa-userauth - index.js
- * Copyright(c) 2014 dead_horse <dead_horse@qq.com>
+/**!
+ * koa-userauth - index.test.js
+ *
+ * Copyright(c) koajs and other contributors.
  * MIT Licensed
+ *
+ * Authors:
+ *   dead_horse <dead_horse@qq.com>
+ *   fengmk2 <fengmk2@gmail.com> (http://fengmk2.github.com)
  */
 
 'use strict';
@@ -12,17 +17,157 @@
 
 var pedding = require('pedding');
 var mm = require('mm');
-var userauth = require('../');
 var should = require('should');
 var request = require('supertest');
+var koa = require('koa');
+var session = require('koa-generic-session');
+var userauth = require('../');
 var createApp = require('./app');
 
 function match(path) {
   return path.indexOf('/user') === 0;
 }
 
+describe('index.test.js', function () {
+  describe('userauth([match, ]options)', function () {
+    it('should support match="" to match all', function (done) {
+      var app = koa();
+      app.keys = ['i m secret'];
+      app.use(session());
+      app.use(userauth('', {
+        loginURLForamter: function (url) {
+          return 'http://auth.example.com/login';
+        },
+        getUser: function* () {
+          return null;
+        }
+      }));
+      request(app.listen())
+      .get('/')
+      .expect('Location', '/login?redirect=%2F')
+      .expect(302, done);
+    });
 
-describe('userauth.test.js', function () {
+    it('should support options.match="" to match all', function (done) {
+      var app = koa();
+      app.keys = ['i m secret'];
+      app.use(session());
+      app.use(userauth({
+        match: '',
+        loginURLForamter: function (url) {
+          return 'http://auth.example.com/login';
+        },
+        getUser: function* () {
+          return null;
+        }
+      }));
+      request(app.listen())
+      .get('/')
+      .expect('Location', '/login?redirect=%2F')
+      .expect(302, done);
+    });
+
+    it('should support options.match=null to not match all', function (done) {
+      var app = koa();
+      app.keys = ['i m secret'];
+      app.use(session());
+      app.use(userauth({
+        match: null,
+        loginURLForamter: function (url) {
+          return 'http://auth.example.com/login';
+        },
+        getUser: function* () {
+          return null;
+        }
+      }));
+      app.use(function* () {
+        this.body = 'pass';
+      });
+      request(app.listen())
+      .get('/')
+      .expect('pass')
+      .expect(200, done);
+    });
+
+    it('should GET /login redirect to login url', function (done) {
+      var app = koa();
+      app.keys = ['i m secret'];
+      app.use(session());
+      app.use(userauth({
+        match: '',
+        loginURLForamter: function (url) {
+          return 'http://auth.example.com/login';
+        },
+        getUser: function* () {
+          return null;
+        }
+      }));
+      request(app.listen())
+      .get('/login')
+      .expect('Location', 'http://auth.example.com/login')
+      .expect(302, done);
+    });
+
+    it('should support rootPath=/foo', function (done) {
+      var app = koa();
+      app.keys = ['i m secret'];
+      app.use(session());
+      app.use(userauth({
+        match: '',
+        rootPath: '/foo',
+        loginURLForamter: function (url) {
+          return 'http://auth.example.com/login';
+        },
+        getUser: function* () {
+          return null;
+        }
+      }));
+      request(app.listen())
+      .get('/foo/login')
+      .expect('Location', 'http://auth.example.com/login')
+      .expect(302, done);
+    });
+
+    it('should always redirect to login page when session not exists', function (done) {
+      var app = koa();
+      app.keys = ['i m secret'];
+      app.use(userauth({
+        match: '/user',
+        loginURLForamter: function (url) {
+          return 'http://auth.example.com/login';
+        },
+        getUser: function* () {
+          return null;
+        }
+      }));
+      request(app.listen())
+      .get('/user')
+      .expect('Location', 'http://auth.example.com/login')
+      .expect(302, done);
+    });
+
+    it('should pass when session not exists and not match need login', function (done) {
+      var app = koa();
+      app.keys = ['i m secret'];
+      app.use(userauth({
+        match: '/user',
+        loginURLForamter: function (url) {
+          return 'http://auth.example.com/login';
+        },
+        getUser: function* () {
+          return null;
+        }
+      }));
+      app.use(function* () {
+        this.body = 'pass';
+      });
+      request(app.listen())
+      .get('/')
+      .expect('pass')
+      .expect(200, done);
+    });
+  });
+
   [
     ['string', '/user'],
     ['regexp', /^\/user/],
@@ -41,9 +186,9 @@ describe('userauth.test.js', function () {
 
         request(app)
         .get('/login')
-        .expect('Location', /^\/mocklogin\?redirect\=/)
+        .expect('Location', /^\/mocklogin\?redirect/)
         .expect('Location', /\/login\/callback$/)
-        .expect('Set-Cookie', /^koa\.sid\=/)
+        .expect('Set-Cookie', /^koa\.sid/)
         .expect(302, function (err, res) {
           should.not.exist(err);
           var cookie = res.headers['set-cookie'].join(';');
@@ -58,21 +203,21 @@ describe('userauth.test.js', function () {
 
         request(app)
         .get('/login?foo=bar')
-        .expect('Location', /^\/mocklogin\?redirect\=/)
+        .expect('Location', /^\/mocklogin\?redirect/)
         .expect('Location', /\/login\/callback$/)
         .expect(302, done);
 
         request(app)
         .get('/login?foo=bar')
         .set('Accept', 'application/json')
-        .expect('Location', /^\/mocklogin\?redirect\=/)
+        .expect('Location', /^\/mocklogin\?redirect/)
         .expect({ error: '401 Unauthorized' })
         .expect(401, done);
 
         request(app)
         .get('/login?redirect=user/index')
-        .expect('Location', /^\/mocklogin\?redirect\=/)
-        .expect('Set-Cookie', /^koa\.sid\=/)
+        .expect('Location', /^\/mocklogin\?redirect/)
+        .expect('Set-Cookie', /^koa\.sid/)
         .expect(302, function (err, res) {
           should.not.exist(err);
           var cookie = res.headers['set-cookie'].join(';');
@@ -86,8 +231,8 @@ describe('userauth.test.js', function () {
 
         request(app)
         .get('/login?redirect=/index2')
-        .expect('Location', /^\/mocklogin\?redirect\=/)
-        .expect('Set-Cookie', /^koa\.sid\=/)
+        .expect('Location', /^\/mocklogin\?redirect/)
+        .expect('Set-Cookie', /^koa\.sid/)
         .expect(302, function (err, res) {
           should.not.exist(err);
           var cookie = res.headers['set-cookie'].join(';');
@@ -105,7 +250,7 @@ describe('userauth.test.js', function () {
         .get('/login/callback')
         .set('mocklogin', 1)
         .expect('Location', '/')
-        .expect('Set-Cookie', /^koa\.sid\=/)
+        .expect('Set-Cookie', /^koa\.sid/)
         .expect(302, function (err, res) {
           var cookie = res.headers['set-cookie'].join(';');
           request(app)
@@ -122,8 +267,8 @@ describe('userauth.test.js', function () {
         request(app)
         .get('/login?redirect=')
         .set('Referer', 'http://demo.com/foo')
-        .expect('Location', /^\/mocklogin\?redirect\=/)
-        .expect('Set-Cookie', /^koa\.sid\=/)
+        .expect('Location', /^\/mocklogin\?redirect/)
+        .expect('Set-Cookie', /^koa\.sid/)
         .expect(302, function (err, res) {
           should.not.exist(err);
           var cookie = res.headers['set-cookie'].join(';');
@@ -139,8 +284,8 @@ describe('userauth.test.js', function () {
         request(app)
         .get('/login')
         .set('Referer', 'foo/bar')
-        .expect('Location', /^\/mocklogin\?redirect\=/)
-        .expect('Set-Cookie', /^koa\.sid\=/)
+        .expect('Location', /^\/mocklogin\?redirect/)
+        .expect('Set-Cookie', /^koa\.sid/)
         .expect(302, function (err, res) {
           should.not.exist(err);
           var cookie = res.headers['set-cookie'].join(';');
@@ -156,8 +301,8 @@ describe('userauth.test.js', function () {
         request(app)
         .get('/login')
         .set('Referer', '/foo/bar')
-        .expect('Location', /^\/mocklogin\?redirect\=/)
-        .expect('Set-Cookie', /^koa\.sid\=/)
+        .expect('Location', /^\/mocklogin\?redirect/)
+        .expect('Set-Cookie', /^koa\.sid/)
         .expect(302, function (err, res) {
           should.not.exist(err);
           var cookie = res.headers['set-cookie'].join(';');
@@ -173,8 +318,8 @@ describe('userauth.test.js', function () {
         request(app)
         .get('/login')
         .set('Referer', '/login')
-        .expect('Location', /^\/mocklogin\?redirect\=/)
-        .expect('Set-Cookie', /^koa\.sid\=/)
+        .expect('Location', /^\/mocklogin\?redirect/)
+        .expect('Set-Cookie', /^koa\.sid/)
         .expect(302, function (err, res) {
           should.not.exist(err);
           var cookie = res.headers['set-cookie'].join(';');
