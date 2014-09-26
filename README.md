@@ -60,12 +60,16 @@ app.use(userauth({
 
 ### Arguments
 
+If `options.match` or `options.ignore` is `String` instance,
+we will use [path-match](https://github.com/expressjs/path-match) transfer it to `Regex` instance.
+
 ```js
 /**
  * User auth middleware.
  *
  * @param {Object} [options]
  *  - {String|Regex|Function(pathname, ctx)} match, detect which url need to check user auth.
+ *      `''` empty string meaning match all, @see `path-match` package.
  *  - {String|Regex|Function(pathname, ctx)} ignore, detect which url no need to check user auth.
  *      If `match` exists, this argument will be ignored.
  *  - {Function(url, rootPath)} loginURLForamter, format the login url.
