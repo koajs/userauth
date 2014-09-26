@@ -1,4 +1,10 @@
 
+1.1.1 / 2014-09-26 
+==================
+
+  * Merge pull request #2 from koajs/refactor
+  * compatibility: userauth("", options) and improve ctx.session not exists case
+
 1.1.0 / 2014-09-23 
 ==================
 
