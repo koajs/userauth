@@ -38,7 +38,7 @@ var defaultOptions = {
  *
  * @param {String|Regex|Function(pathname, ctx)} match, detect which url need to check user auth.
  * @param {Object} options
- *  - {Function(url, rootPath)} loginURLForamter, format the login url.
+ *  - {Function(url, rootPath)} loginURLFormater, format the login url.
  *  - {String} [rootPath], custom app url root path, default is '/'.
  *  - {String} [loginPath], default is '/login'.
  *  - {String} [loginCallbackPath], default is `options.loginPath + '/callback'`.
@@ -70,7 +70,7 @@ module.exports = function (options) {
     options.loginCallbackPath = path.join(options.rootPath, options.loginCallbackPath);
   }
 
-  options.loginURLForamter = options.loginURLForamter;
+  options.loginURLFormater = options.loginURLFormater || options.loginURLForamter;
   options.getUser = options.getUser;
   options.redirectHandler = options.redirectHandler || defaultRedirectHandler;
 
@@ -120,7 +120,7 @@ module.exports = function (options) {
    * login flow:
    *
    * 1. unauth user, redirect to `$loginPath?redirect=$currentURL`
-   * 2. user visit `$loginPath`, redirect to `options.loginURLForamter()` return login url.
+   * 2. user visit `$loginPath`, redirect to `options.loginURLFormater()` return login url.
    * 3. user visit $loginCallbackPath, handler login callback logic.
    * 4. If user login callback check success, will set `req.session[userField]`,
    *    and redirect to `$currentURL`.
@@ -297,7 +297,7 @@ function login(options) {
 
     var host = defaultHost || this.host;
     var currentURL = protocol + '://' + host + loginCallbackPath;
-    var loginURL = options.loginURLForamter(currentURL, options.rootPath);
+    var loginURL = options.loginURLFormater(currentURL, options.rootPath);
     debug('login redrect to loginURL: %s', loginURL);
     redirect(this, loginURL);
   };

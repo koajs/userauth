@@ -35,7 +35,7 @@ describe('index.test.js', function () {
       app.keys = ['i m secret'];
       app.use(session());
       app.use(userauth('', {
-        loginURLForamter: function (url) {
+        loginURLFormater: function (url) {
           return 'http://auth.example.com/login';
         },
         getUser: function* () {
@@ -54,7 +54,7 @@ describe('index.test.js', function () {
       app.use(session());
       app.use(userauth({
         match: '',
-        loginURLForamter: function (url) {
+        loginURLFormater: function (url) {
           return 'http://auth.example.com/login';
         },
         getUser: function* () {
@@ -73,7 +73,7 @@ describe('index.test.js', function () {
       app.use(session());
       app.use(userauth({
         match: null,
-        loginURLForamter: function (url) {
+        loginURLFormater: function (url) {
           return 'http://auth.example.com/login';
         },
         getUser: function* () {
@@ -95,7 +95,7 @@ describe('index.test.js', function () {
       app.use(session());
       app.use(userauth({
         match: '',
-        loginURLForamter: function (url) {
+        loginURLFormater: function (url) {
           return 'http://auth.example.com/login';
         },
         getUser: function* () {
@@ -115,7 +115,7 @@ describe('index.test.js', function () {
       app.use(userauth({
         match: '',
         rootPath: '/foo',
-        loginURLForamter: function (url) {
+        loginURLFormater: function (url) {
           return 'http://auth.example.com/login';
         },
         getUser: function* () {
@@ -133,7 +133,7 @@ describe('index.test.js', function () {
       app.keys = ['i m secret'];
       app.use(userauth({
         match: '/user',
-        loginURLForamter: function (url) {
+        loginURLFormater: function (url) {
           return 'http://auth.example.com/login';
         },
         getUser: function* () {
@@ -151,7 +151,7 @@ describe('index.test.js', function () {
       app.keys = ['i m secret'];
       app.use(userauth({
         match: '/user',
-        loginURLForamter: function (url) {
+        loginURLFormater: function (url) {
           return 'http://auth.example.com/login';
         },
         getUser: function* () {
