@@ -1,6 +1,6 @@
 {
   "name": "koa-userauth",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "user auth middleware for koa",
   "main": "index.js",
   "scripts": {
