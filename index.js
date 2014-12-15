@@ -291,8 +291,8 @@ function login(options) {
     var loginPath = options.loginPath;
     // this.session should be exists
     if (this.session) {
-      this.session._loginReferer = formatReferer(this, loginPath, options.rootPath);
-      debug('set loginReferer into session: %s', this.session._loginReferer);
+      this.session.userauthLoginReferer = formatReferer(this, loginPath, options.rootPath);
+      debug('set loginReferer into session: %s', this.session.userauthLoginReferer);
     }
 
     var host = defaultHost || this.host;
@@ -311,7 +311,8 @@ function login(options) {
 
 function loginCallback(options) {
   return function *loginCallbackHandler() {
-    var referer = this.session._loginReferer || options.rootPath;
+    var referer = this.session.userauthLoginReferer || options.rootPath;
+    debug('loginReferer in session: %j', this.session.userauthLoginReferer);
     var user = this.session[options.userField];
     if (user) {
       // already login
