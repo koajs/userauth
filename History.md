@@ -1,4 +1,10 @@
 
+1.1.3 / 2014-12-15 
+==================
+
+  * Merge pull request #5 from koajs/cookie-session-hotfix
+  * fix: koa-session don't support key start with '_'
+
 1.1.2 / 2014-10-14
 ==================
 
