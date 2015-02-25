@@ -97,6 +97,11 @@ we will use [path-match](https://github.com/expressjs/path-match) transfer it to
 5. If login check callback error, next(err).
 6. user visit `$logoutPath`, set `req.session[userField] = null`, and redirect back.
 
+![userauth flow](https://www.lucidchart.com/publicSegments/view/54ede23d-a75c-4690-9408-33a30a008a99/image.png)
+
+> [Source image file](https://www.lucidchart.com/documents/edit/4749f226-b75f-42ef-934f-b89f7bd68c7f?driveId=0ACmMEQjF7GJGUk9PVA)
+
+
 ## License
 
-MIT
+[MIT](LICENSE)
