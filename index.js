@@ -129,7 +129,7 @@ module.exports = function (options) {
    */
 
   return function* userauth(next) {
-    var loginRequired = !!needLogin(this.path);
+    var loginRequired = !!needLogin(this.path, this);
     debug('url: %s, path: %s, loginPath: %s, session exists: %s, login required: %s',
       this.url, this.path, options.loginPath, !!this.session, loginRequired);
 
