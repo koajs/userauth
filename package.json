@@ -1,6 +1,6 @@
 {
   "name": "koa-userauth",
-  "version": "1.1.5",
+  "version": "1.2.0",
   "description": "user auth middleware for koa",
   "main": "index.js",
   "scripts": {
@@ -35,9 +35,9 @@
     "mm": "~1.1.0",
     "mocha": "*",
     "pedding": "~1.0.0",
-    "should": "~6.0.1",
+    "should": "~6.0.3",
     "should-http": "*",
-    "supertest": "~0.15.0"
+    "supertest": "~1.0.1"
   },
   "dependencies": {
     "copy-to": "~2.0.1",

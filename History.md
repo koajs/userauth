@@ -1,15 +1,20 @@
 
+1.2.0 / 2015-05-21
+==================
+
+  * feat: add ctx in needLogin
+
 1.1.5 / 2015-05-12
 ==================
 
  * deps: upgrade copy-to
 
-1.1.4 / 2015-04-26 
+1.1.4 / 2015-04-26
 ==================
 
   * deps: upgrade debug to the latest
 
-1.1.3 / 2014-12-15 
+1.1.3 / 2014-12-15
 ==================
 
   * Merge pull request #5 from koajs/cookie-session-hotfix
