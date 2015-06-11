@@ -70,7 +70,7 @@ module.exports = function (options) {
     options.loginCallbackPath = path.join(options.rootPath, options.loginCallbackPath);
   }
 
-  options.loginURLFormater = options.loginURLFormater || options.loginURLForamter;
+  options.loginURLFormater = options.loginURLFormater;
   options.getUser = options.getUser;
   options.redirectHandler = options.redirectHandler || defaultRedirectHandler;
 
@@ -152,7 +152,7 @@ module.exports = function (options) {
 
     // get login callback
     if (this.path === options.loginCallbackPath) {
-      debug('match login clalback path');
+      debug('match login callback path');
       return yield* loginCallbackHandler.call(this, next);
     }
 
