@@ -35,7 +35,7 @@ module.exports = function(match, ignore) {
   app.use(userauth({
     match: match,
     ignore: ignore,
-    loginURLForamter: function (url) {
+    loginURLFormater: function (url) {
       return '/mocklogin?redirect=' + url;
     },
 
