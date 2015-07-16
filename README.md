@@ -46,7 +46,7 @@ app.use(session());
 app.use(userauth({
   match: '/user',
   // auth system login url
-  loginURLFormater: function (url) {
+  loginURLFormatter: function (url) {
     return 'http://login.demo.com/login?redirect=' + url;
   },
   // login callback and getUser info handler
@@ -72,7 +72,7 @@ we will use [path-match](https://github.com/expressjs/path-match) transfer it to
  *      `''` empty string meaning match all, @see `path-match` package.
  *  - {String|Regex|Function(pathname, ctx)} ignore, detect which url no need to check user auth.
  *      If `match` exists, this argument will be ignored.
- *  - {Function(url, rootPath)} loginURLFormater, format the login url.
+ *  - {Function(url, rootPath)} loginURLFormatter, format the login url.
  *  - {String} [rootPath], custom app url root path, default is '/'.
  *  - {String} [loginPath], default is '/login'.
  *  - {String} [loginCallbackPath], default is `options.loginPath + '/callback'`.
@@ -90,7 +90,7 @@ we will use [path-match](https://github.com/expressjs/path-match) transfer it to
 ## Login flow
 
 1. unauth user, redirect to `$loginPath?redirect=$currentURL`
-2. user visit `$loginPath`, redirect to `options.loginURLFormater()` return login url.
+2. user visit `$loginPath`, redirect to `options.loginURLFormatter()` return login url.
 3. user visit $loginCallbackPath, handler login callback logic.
 4. If user login callback check success, will set `req.session[userField]`,
    and redirect to `$currentURL`.
