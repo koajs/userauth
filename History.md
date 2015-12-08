@@ -1,4 +1,10 @@
 
+1.2.2 / 2015-12-08
+==================
+
+ * test: add https protocol test case
+ * fix: auto detect protocol from ctx
+
 1.2.1 / 2015-07-16
 ==================
 
