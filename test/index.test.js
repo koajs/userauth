@@ -26,7 +26,7 @@ function match(path) {
   return path.indexOf('/user') === 0;
 }
 
-describe('index.test.js', function () {
+describe('test/index.test.js', function () {
   describe('userauth([match, ]options)', function () {
     it('should support match="" to match all', function (done) {
       var app = koa();
@@ -103,6 +103,27 @@ describe('index.test.js', function () {
       request(app.listen())
       .get('/login')
       .expect('Location', 'http://auth.example.com/login')
+      .expect(302, done);
+    });
+
+    it('should support https', function (done) {
+      var app = koa();
+      app.proxy = true;
+      app.keys = ['i m secret'];
+      app.use(session());
+      app.use(userauth({
+        match: '',
+        loginURLFormater: function (url) {
+          return 'https://auth.example.com/login?callback=' + url;
+        },
+        getUser: function* () {
+          return null;
+        }
+      }));
+      request(app.listen())
+      .get('/login')
+      .set('X-Forwarded-Proto', 'https')
+      .expect('Location', /https:\/\/auth\.example\.com\/login\?callback=https:\/\//)
       .expect(302, done);
     });
 

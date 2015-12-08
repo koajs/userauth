@@ -20,7 +20,7 @@ var pedding = require('pedding');
 var userauth = require('..');
 var createApp = require('./app');
 
-describe('ignore.test.js', function () {
+describe('test/ignore.test.js', function () {
   it('should ignore /api/xxx', function (done) {
     var app = createApp(null, '/api');
     request(app)
