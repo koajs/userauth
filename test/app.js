@@ -1,7 +1,10 @@
-/*!
- * koa-userauth - test/app.js
- * Copyright(c) 2014 dead_horse <dead_horse@qq.com>
+/**
+ * Copyright(c) koajs and other contributors.
  * MIT Licensed
+ *
+ * Authors:
+ *   dead_horse <dead_horse@qq.com>
+ *   fengmk2 <fengmk2@gmail.com> (http://fengmk2.com)
  */
 
 'use strict';

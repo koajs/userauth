@@ -1,11 +1,9 @@
-/**!
- * koa-userauth - test/ignore.test.js
- *
- * Copyright(c) fengmk2 and other contributors.
+/**
+ * Copyright(c) koajs and other contributors.
  * MIT Licensed
  *
  * Authors:
- *   fengmk2 <fengmk2@gmail.com> (http://fengmk2.github.com)
+ *   fengmk2 <fengmk2@gmail.com> (http://fengmk2.com)
  */
 
 'use strict';
@@ -22,7 +20,7 @@ var pedding = require('pedding');
 var userauth = require('..');
 var createApp = require('./app');
 
-describe('ignore.test.js', function () {
+describe('test/ignore.test.js', function () {
   it('should ignore /api/xxx', function (done) {
     var app = createApp(null, '/api');
     request(app)
