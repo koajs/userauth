@@ -1,12 +1,10 @@
 /**!
- * koa-userauth - index.js
- *
  * Copyright(c) koajs and other contributors.
  * MIT Licensed
  *
  * Authors:
  *   dead_horse <dead_horse@qq.com>
- *   fengmk2 <fengmk2@gmail.com> (http://fengmk2.github.com)
+ *   fengmk2 <fengmk2@gmail.com> (http://fengmk2.com)
  */
 
 'use strict';
@@ -139,47 +137,47 @@ module.exports = function (options) {
       // ignore not match path
       if (!loginRequired) {
         debug('not match needLogin path, %j', this.path);
-        return yield* next;
+        return yield next;
       }
       debug('relogin again');
-      return yield* loginHandler.call(this, next);
+      return yield loginHandler.call(this, next);
     }
 
     // get login path
     if (this.path === options.loginPath) {
       debug('match login path');
-      return yield* loginHandler.call(this, next);
+      return yield loginHandler.call(this, next);
     }
 
     // get login callback
     if (this.path === options.loginCallbackPath) {
       debug('match login clalback path');
-      return yield* loginCallbackHandler.call(this, next);
+      return yield loginCallbackHandler.call(this, next);
     }
 
     // get logout
     if (this.path === options.logoutPath) {
       debug('match logout path');
-      return yield* logoutHandler.call(this, next);
+      return yield logoutHandler.call(this, next);
     }
 
     // ignore not match path
     if (!loginRequired) {
       debug('ignore %j', this.path);
-      return yield* next;
+      return yield next;
     }
 
     if (this.session[options.userField]
       && options.loginCheck(this)) {
       // 4. user logined, next() handler
       debug('already logined');
-      return yield* next;
+      return yield next;
     }
 
     // try to getUser directly
     var user;
     try {
-      user = yield* options.getUser(this);
+      user = yield options.getUser(this);
     } catch (err) {
       console.error('[koa-userauth] options.getUser error: %s', err.stack);
     }
@@ -189,7 +187,7 @@ module.exports = function (options) {
       var ctx = this;
 
       // make next handle a generator
-      // so it can use yield* next in redirectHandle
+      // so it can use yield next in redirectHandle
       var nextHandler = (function* () {
         var redirectURL = ctx.url;
         try {
@@ -203,23 +201,23 @@ module.exports = function (options) {
         redirect(ctx, loginURL);
       })();
 
-      return yield* options.redirectHandler.call(this, nextHandler);
+      return yield options.redirectHandler.call(this, nextHandler);
     }
 
     debug('get user directly');
-    var res = yield* options.loginCallback(this, user);
+    var res = yield options.loginCallback(this, user);
     var loginUser = res[0];
     var redirectURL = res[1];
     this.session[options.userField] = loginUser;
     if (redirectURL) {
       return redirect(this, redirectURL);
     }
-    yield* next;
+    yield next;
   };
 };
 
 function* defaultRedirectHandler(nextHandler) {
-  yield* nextHandler;
+  yield nextHandler;
 }
 
 function* defaultLoginCallback(ctx, user) {
@@ -285,7 +283,6 @@ function formatReferer(ctx, pathname, rootPath) {
  */
 
 function login(options) {
-  var protocol = options.protocol || 'http';
   var defaultHost = options.host;
   return function* loginHandler() {
     var loginCallbackPath = options.loginCallbackPath;
@@ -297,6 +294,7 @@ function login(options) {
     }
 
     var host = defaultHost || this.host;
+    var protocol = options.protocol || this.protocol;
     var currentURL = protocol + '://' + host + loginCallbackPath;
     var loginURL = options.loginURLFormatter(currentURL, options.rootPath);
     debug('login redrect to loginURL: %s', loginURL);
@@ -319,12 +317,12 @@ function loginCallback(options) {
       // already login
       return redirect(this, referer);
     }
-    user = yield* options.getUser(this);
+    user = yield options.getUser(this);
     if (!user) {
       return redirect(this, referer);
     }
 
-    var res = yield *options.loginCallback(this, user);
+    var res = yield options.loginCallback(this, user);
     var loginUser = res[0];
     var redirectURL = res[1];
     this.session[options.userField] = loginUser;
@@ -349,7 +347,7 @@ function logout(options) {
       return redirect(this, referer);
     }
 
-    var redirectURL = yield* options.logoutCallback(this, user);
+    var redirectURL = yield options.logoutCallback(this, user);
 
     this.session[options.userField] = null;
     if (redirectURL) {
