@@ -35,7 +35,7 @@
     "mm": "1",
     "mocha": "*",
     "pedding": "*",
-    "should": "6",
+    "should": "8.1.0",
     "should-http": "*",
     "supertest": "1"
   },
