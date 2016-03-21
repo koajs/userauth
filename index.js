@@ -97,8 +97,8 @@ module.exports = function (options) {
         return !ignore.test(path);
       };
     } else if (is.function(ignore)) {
-      needLogin = function (path) {
-        return !ignore(path);
+      needLogin = function (path, context) {
+        return !ignore(path, context);
       };
     } else {
       // ignore all
