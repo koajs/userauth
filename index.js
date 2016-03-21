@@ -77,13 +77,16 @@ module.exports = function (options) {
   var ignore = options.ignore;
 
   // need login checker
-  var needLogin = match;
+  var needLogin;
+
   if (is.string(match)) {
     needLogin = route(match);
   } else if (is.regExp(match)) {
     needLogin = function (path) {
       return match.test(path);
     };
+  } else if (is.function(match)) {
+    needLogin = match;
   }
 
   if (!is.function(needLogin)) {
