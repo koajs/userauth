@@ -299,7 +299,7 @@ function login(options) {
     var host = defaultHost || this.host;
     var protocol = options.protocol || this.protocol;
     var currentURL = protocol + '://' + host + loginCallbackPath;
-    var loginURL = options.loginURLFormatter(currentURL, options.rootPath);
+    var loginURL = options.loginURLFormatter(currentURL, options.rootPath, this);
     debug('login redrect to loginURL: %s', loginURL);
     redirect(this, loginURL);
   };
