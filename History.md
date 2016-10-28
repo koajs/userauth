@@ -1,5 +1,10 @@
 
-1.2.3 / 2016-03-22 
+1.3.0 / 2016-10-28
+==================
+
+  * feat: loginURLFormatter support context (#19)
+
+1.2.3 / 2016-03-22
 ==================
 
   * fix: add context parameter to ignore
