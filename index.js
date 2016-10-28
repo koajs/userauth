@@ -36,7 +36,7 @@ var defaultOptions = {
  *
  * @param {String|Regex|Function(pathname, ctx)} match, detect which url need to check user auth.
  * @param {Object} options
- *  - {Function(url, rootPath)} loginURLFormatter, format the login url.
+ *  - {Function(url, rootPath, ctx)} loginURLFormatter, format the login url.
  *  - {String} [rootPath], custom app url root path, default is '/'.
  *  - {String} [loginPath], default is '/login'.
  *  - {String} [loginCallbackPath], default is `options.loginPath + '/callback'`.
@@ -299,7 +299,7 @@ function login(options) {
     var host = defaultHost || this.host;
     var protocol = options.protocol || this.protocol;
     var currentURL = protocol + '://' + host + loginCallbackPath;
-    var loginURL = options.loginURLFormatter(currentURL, options.rootPath);
+    var loginURL = options.loginURLFormatter(currentURL, options.rootPath, this);
     debug('login redrect to loginURL: %s', loginURL);
     redirect(this, loginURL);
   };

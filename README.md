@@ -72,7 +72,7 @@ we will use [path-match](https://github.com/expressjs/path-match) transfer it to
  *      `''` empty string meaning match all, @see `path-match` package.
  *  - {String|Regex|Function(pathname, ctx)} ignore, detect which url no need to check user auth.
  *      If `match` exists, this argument will be ignored.
- *  - {Function(url, rootPath)} loginURLFormatter, format the login url.
+ *  - {Function(url, rootPath, ctx)} loginURLFormatter, format the login url.
  *  - {String} [rootPath], custom app url root path, default is '/'.
  *  - {String} [loginPath], default is '/login'.
  *  - {String} [loginCallbackPath], default is `options.loginPath + '/callback'`.
