@@ -36,7 +36,7 @@ var defaultOptions = {
  *
  * @param {String|Regex|Function(pathname, ctx)} match, detect which url need to check user auth.
  * @param {Object} options
- *  - {Function(url, rootPath)} loginURLFormatter, format the login url.
+ *  - {Function(url, rootPath, context)} loginURLFormatter, format the login url.
  *  - {String} [rootPath], custom app url root path, default is '/'.
  *  - {String} [loginPath], default is '/login'.
  *  - {String} [loginCallbackPath], default is `options.loginPath + '/callback'`.
