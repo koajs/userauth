@@ -27,17 +27,17 @@
   "homepage": "https://github.com/koajs/userauth",
   "devDependencies": {
     "autod": "*",
-    "istanbul": "*",
-    "jshint": "*",
-    "koa": "1",
-    "koa-generic-session": "1",
-    "koa-route": "2",
-    "mm": "1",
-    "mocha": "*",
-    "pedding": "*",
-    "should": "6",
-    "should-http": "*",
-    "supertest": "1"
+    "istanbul": "^0.4.5",
+    "jshint": "^2.9.4",
+    "koa": "^1.2.5",
+    "koa-generic-session": "^1.11.5",
+    "koa-route": "^2.4.2",
+    "mm": "^2.1.0",
+    "mocha": "^3.2.0",
+    "pedding": "^1.1.0",
+    "should": "^11.2.0",
+    "should-http": "^0.1.0",
+    "supertest": "^3.0.0"
   },
   "dependencies": {
     "copy-to": "~2.0.1",
