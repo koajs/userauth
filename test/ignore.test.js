@@ -33,7 +33,17 @@ describe('test/ignore.test.js', function () {
   });
 
   it('should ignore /api/xxx regex', function (done) {
-    var app = createApp(null, /^\/api\//);
+    done = pedding(2, done);
+
+    var app = createApp(null, /^\/api\//g);
+    request(app)
+    .get('/api/xxx')
+    .expect(200)
+    .expect({
+      user: null,
+      message: 'GET /api/xxx'
+    }, done);
+
     request(app)
     .get('/api/xxx')
     .expect(200)

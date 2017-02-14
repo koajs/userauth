@@ -25,7 +25,7 @@ module.exports = function(match, ignore) {
 
   app.use(function* (next) {
     try {
-      yield* next;
+      yield next;
     } catch (err) {
       this.status = 500;
       this.body = {

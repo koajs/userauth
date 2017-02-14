@@ -97,7 +97,7 @@ module.exports = function (options) {
       };
     } else if (is.regExp(ignore)) {
       needLogin = function (path) {
-        return !ignore.test(path);
+        return !(path && path.match(ignore));
       };
     } else if (is.function(ignore)) {
       needLogin = function (path, context) {
