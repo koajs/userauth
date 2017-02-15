@@ -204,7 +204,7 @@ module.exports = function (options) {
         redirect(ctx, loginURL);
       })();
 
-      return yield options.redirectHandler.call(this, nextHandler);
+      return yield options.redirectHandler.call(this, nextHandler, next);
     }
 
     debug('get user directly');
