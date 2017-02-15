@@ -191,7 +191,7 @@ module.exports = function (options) {
 
       // make next handle a generator
       // so it can use yield next in redirectHandle
-      var nextHandler = (function* () {
+      var loginHandler = (function* () {
         var redirectURL = ctx.url;
         try {
           redirectURL = encodeURIComponent(redirectURL);
@@ -204,7 +204,12 @@ module.exports = function (options) {
         redirect(ctx, loginURL);
       })();
 
-      return yield options.redirectHandler.call(this, nextHandler, next);
+      var nextHandler = function *(){
+        this.session[options.userField] = null;
+        yield next;
+      };
+
+      return yield options.redirectHandler.call(this, loginHandler, nextHandler);
     }
 
     debug('get user directly');
