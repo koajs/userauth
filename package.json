@@ -41,7 +41,7 @@
   },
   "dependencies": {
     "copy-to": "~2.0.1",
-    "debug": "~2.2.0",
+    "debug": "~2.6.7",
     "is-type-of": "~0.3.1",
     "path-match": "~1.2.2"
   },
