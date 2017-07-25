@@ -32,7 +32,7 @@ $ npm install koa-userauth
 
 ## Usage
 
-`koa-userauth` is dependent on [koa-generic-session](https://github.com/koajs/generic-session).
+`koa-userauth` is dependent on [koa-session](https://github.com/koajs/session) or [koa-generic-session](https://github.com/koajs/generic-session).
 
 ```js
 var koa = require('koa');
