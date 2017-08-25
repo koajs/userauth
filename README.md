@@ -6,7 +6,6 @@ koa-userauth
 [![Coveralls][coveralls-image]][coveralls-url]
 [![David deps][david-image]][david-url]
 [![node version][node-image]][node-url]
-[![Gittip][gittip-image]][gittip-url]
 
 [npm-image]: https://img.shields.io/npm/v/koa-userauth.svg?style=flat-square
 [npm-url]: https://npmjs.org/package/koa-userauth
@@ -18,8 +17,6 @@ koa-userauth
 [david-url]: https://david-dm.org/koajs/userauth
 [node-image]: https://img.shields.io/badge/node.js-%3E=_0.11-red.svg?style=flat-square
 [node-url]: http://nodejs.org/download/
-[gittip-image]: https://img.shields.io/gittip/dead-horse.svg?style=flat-square
-[gittip-url]: https://www.gittip.com/dead-horse/
 
 
 `koa` user auth abstraction layer middleware.

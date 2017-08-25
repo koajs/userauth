@@ -1,17 +1,4 @@
-/**!
- * Copyright(c) koajs and other contributors.
- * MIT Licensed
- *
- * Authors:
- *   dead_horse <dead_horse@qq.com>
- *   fengmk2 <fengmk2@gmail.com> (http://fengmk2.com)
- */
-
 'use strict';
-
-/**
- * Module dependencies.
- */
 
 var debug = require('debug')('koa-userauth');
 var path = require('path');
@@ -63,9 +50,17 @@ module.exports = function (options) {
     || options.loginPath + '/callback';
 
   if (options.rootPath !== '/') {
-    options.loginPath = path.join(options.rootPath, options.loginPath);
-    options.logoutPath = path.join(options.rootPath, options.logoutPath);
-    options.loginCallbackPath = path.join(options.rootPath, options.loginCallbackPath);
+    if (process.platform === 'win32') {
+      // rtrim last /, '/foo/' => '/foo'
+      var rootPath = options.rootPath.replace(/\/+$/, '');
+      options.loginPath = rootPath + options.loginPath;
+      options.logoutPath = rootPath + options.logoutPath;
+      options.loginCallbackPath = rootPath + options.loginCallbackPath;
+    } else {
+      options.loginPath = path.join(options.rootPath, options.loginPath);
+      options.logoutPath = path.join(options.rootPath, options.logoutPath);
+      options.loginCallbackPath = path.join(options.rootPath, options.loginCallbackPath);
+    }
   }
 
   // all the typos. T_T
