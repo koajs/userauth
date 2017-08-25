@@ -1,4 +1,13 @@
 
+1.4.2 / 2017-08-25
+==================
+
+**fixes**
+  * [[`4074ec8`](http://github.com/koajs/userauth/commit/4074ec88bce1c22fc73be0737633144535f910bf)] - fix: support custom rootPaht on Windows (#29) (fengmk2 <<fengmk2@gmail.com>>)
+
+**others**
+  * [[`1a17fbb`](http://github.com/koajs/userauth/commit/1a17fbb7f8adc4c7ffae1b2862156186d6ecf41d)] - docs: mention koa-session (#26) (Evgeny <<mahnunchik@gmail.com>>)
+
 1.4.1 / 2017-07-25
 ==================
 
