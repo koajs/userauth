@@ -5,7 +5,6 @@ koa-userauth
 [![build status][travis-image]][travis-url]
 [![Coveralls][coveralls-image]][coveralls-url]
 [![David deps][david-image]][david-url]
-[![node version][node-image]][node-url]
 
 [npm-image]: https://img.shields.io/npm/v/koa-userauth.svg?style=flat-square
 [npm-url]: https://npmjs.org/package/koa-userauth
@@ -15,8 +14,6 @@ koa-userauth
 [coveralls-url]: https://coveralls.io/r/koajs/userauth?branch=master
 [david-image]: https://img.shields.io/david/koajs/userauth.svg?style=flat-square
 [david-url]: https://david-dm.org/koajs/userauth
-[node-image]: https://img.shields.io/badge/node.js-%3E=_0.11-red.svg?style=flat-square
-[node-url]: http://nodejs.org/download/
 
 
 `koa` user auth abstraction layer middleware.
