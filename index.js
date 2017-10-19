@@ -255,7 +255,7 @@ function redirect(ctx, url, status) {
 /**
  * formate referer
  * @param {Context} ctx
- * @param {String} pathname
+ * @param {String} pathname - login path or logout path
  * @param {String} rootPath
  * @return {String}
  *
@@ -268,7 +268,8 @@ function formatReferer(ctx, pathname, rootPath) {
   if (referer[0] !== '/') {
     // ignore protocol://xxx/abc
     referer = rootPath;
-  } else if (referer.indexOf(pathname) >= 0) {
+  } else if (referer.indexOf(pathname) === 0) {
+    // referer start with loginPath or logoutPath, just redirect to rootPath
     referer = rootPath;
   }
   return referer;

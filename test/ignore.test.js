@@ -1,16 +1,4 @@
-/**
- * Copyright(c) koajs and other contributors.
- * MIT Licensed
- *
- * Authors:
- *   fengmk2 <fengmk2@gmail.com> (http://fengmk2.com)
- */
-
 'use strict';
-
-/**
- * Module dependencies.
- */
 
 var request = require('supertest');
 var koa = require('koa');
