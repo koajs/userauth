@@ -1,4 +1,10 @@
 
+1.4.3 / 2017-10-19
+==================
+
+**fixes**
+  * [[`891720f`](http://github.com/koajs/userauth/commit/891720f86348d1a8470926c6b3c416d9a3b5b53a)] - fix: use prefix match on referer detect (#30) (fengmk2 <<fengmk2@gmail.com>>)
+
 1.4.2 / 2017-08-25
 ==================
 
