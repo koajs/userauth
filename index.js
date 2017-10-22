@@ -199,7 +199,10 @@ module.exports = function (options) {
         redirect(ctx, loginURL);
       })();
 
-      return yield options.redirectHandler.call(this, nextHandler, next);
+      return yield options.redirectHandler.call(this, nextHandler, function* (){
+        this.session[options.userField] = null;
+        yield next;
+      });
     }
 
     debug('get user directly');
