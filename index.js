@@ -29,11 +29,11 @@ var defaultOptions = {
  *  - {String} [loginCallbackPath], default is `options.loginPath + '/callback'`.
  *  - {String} [logoutPath], default is '/logout'.
  *  - {String} [userField], logined user field name on `this.session`, default is 'user', `this.session.user`.
- *  - {Function* (ctx)} getUser, get user function, must get user info with `req`.
- *  - {Function* (ctx, user)} [loginCallback], you can handle user login logic here,return [user, redirectUrl]
+ *  - {Async Function (ctx)} getUser, get user function, must get user info with `req`.
+ *  - {Async Function (ctx, user)} [loginCallback], you can handle user login logic here,return [user, redirectUrl]
  *  - {Function(ctx)} [loginCheck], return true meaning logined. default is `true`.
- *  - {Function* (ctx, user)} [logoutCallback], you can handle user logout logic here.return redirectUrl
- * @return {Function* (next)} userauth middleware
+ *  - {Async Function (ctx, user)} [logoutCallback], you can handle user logout logic here.return redirectUrl
+ * @return {Async Function (next)} userauth middleware
  * @public
  */
 
@@ -125,68 +125,67 @@ module.exports = function (options) {
    * 6. user visit `$logoutPath`, set `req.session[userField] = null`, and redirect back.
    */
 
-  return function* userauth(next) {
-    var loginRequired = !!needLogin(this.path, this);
+  return async function userauth(ctx, next) {
+    var loginRequired = !!needLogin(ctx.path, ctx);
     debug('url: %s, path: %s, loginPath: %s, session exists: %s, login required: %s',
-      this.url, this.path, options.loginPath, !!this.session, loginRequired);
+      ctx.url, ctx.path, options.loginPath, !!ctx.session, loginRequired);
 
-    if (!this.session) {
-      debug('this.session not exists');
+    if (!ctx.session) {
+      debug('ctx.session not exists');
       // ignore not match path
       if (!loginRequired) {
-        debug('not match needLogin path, %j', this.path);
-        return yield next;
+        debug('not match needLogin path, %j', ctx.path);
+        return await next();
       }
       debug('relogin again');
-      return yield loginHandler.call(this, next);
+      return await loginHandler.call(ctx, next);
     }
 
     // get login path
-    if (this.path === options.loginPath) {
+    if (ctx.path === options.loginPath) {
       debug('match login path');
-      return yield loginHandler.call(this, next);
+      return await loginHandler.call(ctx, next);
     }
 
     // get login callback
-    if (this.path === options.loginCallbackPath) {
+    if (ctx.path === options.loginCallbackPath) {
       debug('match login clalback path');
-      return yield loginCallbackHandler.call(this, next);
+      return await loginCallbackHandler.call(ctx, next);
     }
 
     // get logout
-    if (this.path === options.logoutPath) {
+    if (ctx.path === options.logoutPath) {
       debug('match logout path');
-      return yield logoutHandler.call(this, next);
+      return await logoutHandler.call(ctx, next);
     }
 
     // ignore not match path
     if (!loginRequired) {
-      debug('ignore %j', this.path);
-      return yield next;
+      debug('ignore %j', ctx.path);
+      return await next();
     }
 
-    if (this.session[options.userField]
-      && options.loginCheck(this)) {
+    if (ctx.session[options.userField]
+      && options.loginCheck(ctx)) {
       // 4. user logined, next() handler
       debug('already logined');
-      return yield next;
+      return await next();
     }
 
     // try to getUser directly
     var user;
     try {
-      user = yield options.getUser(this);
+      user = await options.getUser(ctx);
     } catch (err) {
       console.error('[koa-userauth] options.getUser error: %s', err.stack);
     }
 
     if (!user) {
       debug('can not get user');
-      var ctx = this;
 
       // make next handle a generator
-      // so it can use yield next in redirectHandle
-      var nextHandler = (function* () {
+      // so it can use await next in redirectHandle
+      var nextHandler = async function () {
         var redirectURL = ctx.url;
         try {
           redirectURL = encodeURIComponent(redirectURL);
@@ -197,32 +196,33 @@ module.exports = function (options) {
         var loginURL = options.loginPath + '?redirect=' + redirectURL;
         debug('redirect to %s', loginURL);
         redirect(ctx, loginURL);
-      })();
+      };
 
-      return yield options.redirectHandler.call(this, nextHandler, next);
+      return await options.redirectHandler.call(ctx, nextHandler, next);
     }
 
     debug('get user directly');
-    var res = yield options.loginCallback(this, user);
+    var res = await options.loginCallback(ctx, user);
+    debug('get user directly: ', res);
     var loginUser = res[0];
     var redirectURL = res[1];
-    this.session[options.userField] = loginUser;
+    ctx.session[options.userField] = loginUser;
     if (redirectURL) {
-      return redirect(this, redirectURL);
+      return redirect(ctx, redirectURL);
     }
-    yield next;
+    await next();
   };
 };
 
-function* defaultRedirectHandler(nextHandler) {
-  yield nextHandler;
+async function defaultRedirectHandler(nextHandler) {
+  await nextHandler();
 }
 
-function* defaultLoginCallback(ctx, user) {
+async function defaultLoginCallback(ctx, user) {
   return [user, null];
 }
 
-function* defaultLogoutCallback(ctx, user, callback) {
+async function defaultLogoutCallback(ctx, user, callback) {
   return null;
 }
 
@@ -283,7 +283,7 @@ function formatReferer(ctx, pathname, rootPath) {
 
 function login(options) {
   var defaultHost = options.host;
-  return function* loginHandler() {
+  return async function loginHandler() {
     var loginCallbackPath = options.loginCallbackPath;
     var loginPath = options.loginPath;
     // this.session should be exists
@@ -308,7 +308,7 @@ function login(options) {
  */
 
 function loginCallback(options) {
-  return function *loginCallbackHandler() {
+  return async function loginCallbackHandler() {
     var referer = this.session.userauthLoginReferer || options.rootPath;
     debug('loginReferer in session: %j', this.session.userauthLoginReferer);
     var user = this.session[options.userField];
@@ -316,12 +316,12 @@ function loginCallback(options) {
       // already login
       return redirect(this, referer);
     }
-    user = yield options.getUser(this);
+    user = await options.getUser(this);
     if (!user) {
       return redirect(this, referer);
     }
 
-    var res = yield options.loginCallback(this, user);
+    var res = await options.loginCallback(this, user);
     var loginUser = res[0];
     var redirectURL = res[1];
     this.session[options.userField] = loginUser;
@@ -339,14 +339,14 @@ function loginCallback(options) {
  */
 
 function logout(options) {
-  return function* logoutHandler() {
+  return async function logoutHandler() {
     var referer = formatReferer(this, options.logoutPath, options.rootPath);
     var user = this.session[options.userField];
     if (!user) {
       return redirect(this, referer);
     }
 
-    var redirectURL = yield options.logoutCallback(this, user);
+    var redirectURL = await options.logoutCallback(this, user);
 
     this.session[options.userField] = null;
     if (redirectURL) {

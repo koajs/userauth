@@ -6,18 +6,18 @@ var userauth = require('..');
 var route = require('koa-route');
 
 module.exports = function(match, ignore) {
-  var app = koa();
+  var app = new koa();
   app.keys = ['i m secret'];
   app.use(session());
 
-  app.use(function* (next) {
+  app.use(async (ctx, next) => {
     try {
-      yield next;
+      await next();
     } catch (err) {
-      this.status = 500;
-      this.body = {
+      ctx.status = 500;
+      ctx.body = {
         error: err.message,
-        message: this.method + ' ' + this.url
+        message: ctx.method + ' ' + ctx.url
       };
     }
   });
@@ -29,7 +29,7 @@ module.exports = function(match, ignore) {
       return '/mocklogin?redirect=' + url;
     },
 
-    getUser: function* (ctx) {
+    getUser: async ctx => {
       if (ctx.get('mockerror')) {
         var err = new Error('mock getUser error');
         err.data = {url: ctx.url};
@@ -66,15 +66,14 @@ module.exports = function(match, ignore) {
       return user;
     },
 
-    loginCallback: function* (ctx, user) {
+    loginCallback: async function (ctx, user) {
       if (user.loginError) {
         throw new Error(user.loginError);
       }
       return [user, user.loginRedirect];
     },
 
-
-    logoutCallback: function* (ctx, user) {
+    logoutCallback: async function (ctx, user) {
       ctx.set('X-Logout', 'logoutCallback header');
       if (user.logoutError) {
         throw new Error(user.logoutError);
@@ -83,15 +82,16 @@ module.exports = function(match, ignore) {
     }
   }));
 
-  app.use(route.get('/mocklogin', function* (next) {
-    this.redirect(this.query.redirect);
+  app.use(route.get('/mocklogin', async (ctx) => {
+    ctx.redirect(ctx.query.redirect);
   }));
 
-  app.use(function* (next) {
-    this.body = {
-      user: this.session.user || null,
-      message: this.method + ' ' + this.url
+  app.use(async function (ctx, next) {
+    ctx.body = {
+      user: ctx.session.user || null,
+      message: ctx.method + ' ' + ctx.url
     };
   });
+
   return app.callback();
 };
