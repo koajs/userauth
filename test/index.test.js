@@ -530,15 +530,15 @@ describe('test/index.test.js', function () {
         .expect(302);
       });
 
-      it.skip('should mock logoutCallback error', async () => {
+      it('should mock logoutCallback error', async () => {
         let res = await request(app)
         .get('/user/foo')
         .set('mocklogin', 1)
         .set('mocklogout_callbackerror', 'mock logout callback error')
-        .end(302);
+        .expect(200);
 
         let cookie = res.headers['set-cookie'].join(';');
-        request(app)
+        await request(app)
         .get('/logout')
         .set('Cookie', cookie)
         .expect('X-Logout', 'logoutCallback header')
