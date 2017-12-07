@@ -1,17 +1,17 @@
 'use strict';
 
-var debug = require('debug')('koa-userauth');
-var path = require('path');
-var is = require('is-type-of');
-var copy = require('copy-to');
-var urlparse = require('url').parse;
-var route = require('path-match')({
+const debug = require('debug')('koa-userauth');
+const path = require('path');
+const is = require('is-type-of');
+const copy = require('copy-to');
+const urlparse = require('url').parse;
+const route = require('path-match')({
   end: false,
   strict: false,
   sensitive: false
 });
 
-var defaultOptions = {
+const defaultOptions = {
   userField: 'user',
   rootPath: '/',
   loginPath: '/login',
@@ -29,11 +29,11 @@ var defaultOptions = {
  *  - {String} [loginCallbackPath], default is `options.loginPath + '/callback'`.
  *  - {String} [logoutPath], default is '/logout'.
  *  - {String} [userField], logined user field name on `this.session`, default is 'user', `this.session.user`.
- *  - {Function* (ctx)} getUser, get user function, must get user info with `req`.
- *  - {Function* (ctx, user)} [loginCallback], you can handle user login logic here,return [user, redirectUrl]
+ *  - {Async Function (ctx)} getUser, get user function, must get user info with `req`.
+ *  - {Async Function (ctx, user)} [loginCallback], you can handle user login logic here,return [user, redirectUrl]
  *  - {Function(ctx)} [loginCheck], return true meaning logined. default is `true`.
- *  - {Function* (ctx, user)} [logoutCallback], you can handle user logout logic here.return redirectUrl
- * @return {Function* (next)} userauth middleware
+ *  - {Async Function (ctx, user)} [logoutCallback], you can handle user logout logic here.return redirectUrl
+ * @return {Async Function (next)} userauth middleware
  * @public
  */
 
@@ -52,7 +52,7 @@ module.exports = function (options) {
   if (options.rootPath !== '/') {
     if (process.platform === 'win32') {
       // rtrim last /, '/foo/' => '/foo'
-      var rootPath = options.rootPath.replace(/\/+$/, '');
+      const rootPath = options.rootPath.replace(/\/+$/, '');
       options.loginPath = rootPath + options.loginPath;
       options.logoutPath = rootPath + options.logoutPath;
       options.loginCallbackPath = rootPath + options.loginCallbackPath;
@@ -68,36 +68,28 @@ module.exports = function (options) {
   options.getUser = options.getUser;
   options.redirectHandler = options.redirectHandler || defaultRedirectHandler;
 
-  var match = options.match;
-  var ignore = options.ignore;
+  const match = options.match;
+  const ignore = options.ignore;
 
   // need login checker
-  var needLogin;
+  let needLogin;
 
   if (is.string(match)) {
     needLogin = route(match);
   } else if (is.regExp(match)) {
-    needLogin = function (path) {
-      return match.test(path);
-    };
+    needLogin = path => match.test(path);
   } else if (is.function(match)) {
     needLogin = match;
   }
 
   if (!is.function(needLogin)) {
     if (is.string(ignore)) {
-      var pathMatch = route(ignore);
-      needLogin = function (path) {
-        return !pathMatch(path);
-      };
+      const pathMatch = route(ignore);
+      needLogin = path => !pathMatch(path);
     } else if (is.regExp(ignore)) {
-      needLogin = function (path) {
-        return !(path && path.match(ignore));
-      };
+      needLogin = path => !(path && path.match(ignore));
     } else if (is.function(ignore)) {
-      needLogin = function (path, context) {
-        return !ignore(path, context);
-      };
+      needLogin = (path, context) => !ignore(path, context);
     } else {
       // ignore all
       needLogin = function () {};
@@ -109,9 +101,9 @@ module.exports = function (options) {
   options.logoutCallback = options.logoutCallback || defaultLogoutCallback;
   options.loginCheck = options.loginCheck || defaultLoginCheck;
 
-  var loginHandler = login(options);
-  var loginCallbackHandler = loginCallback(options);
-  var logoutHandler = logout(options);
+  const loginHandler = login(options);
+  const loginCallbackHandler = loginCallback(options);
+  const logoutHandler = logout(options);
 
   /**
    * login flow:
@@ -125,104 +117,106 @@ module.exports = function (options) {
    * 6. user visit `$logoutPath`, set `req.session[userField] = null`, and redirect back.
    */
 
-  return function* userauth(next) {
-    var loginRequired = !!needLogin(this.path, this);
+  return async function userauth(ctx, next) {
+    const loginRequired = !!needLogin(ctx.path, ctx);
     debug('url: %s, path: %s, loginPath: %s, session exists: %s, login required: %s',
-      this.url, this.path, options.loginPath, !!this.session, loginRequired);
+      ctx.url, ctx.path, options.loginPath, !!ctx.session, loginRequired);
 
-    if (!this.session) {
-      debug('this.session not exists');
+    if (!ctx.session) {
+      debug('ctx.session not exists');
       // ignore not match path
       if (!loginRequired) {
-        debug('not match needLogin path, %j', this.path);
-        return yield next;
+        debug('not match needLogin path, %j', ctx.path);
+        return next();
       }
       debug('relogin again');
-      return yield loginHandler.call(this, next);
+      return loginHandler(ctx);
     }
 
     // get login path
-    if (this.path === options.loginPath) {
+    if (ctx.path === options.loginPath) {
       debug('match login path');
-      return yield loginHandler.call(this, next);
+      return loginHandler(ctx);
     }
 
     // get login callback
-    if (this.path === options.loginCallbackPath) {
+    if (ctx.path === options.loginCallbackPath) {
       debug('match login clalback path');
-      return yield loginCallbackHandler.call(this, next);
+      return loginCallbackHandler(ctx);
     }
 
     // get logout
-    if (this.path === options.logoutPath) {
+    if (ctx.path === options.logoutPath) {
       debug('match logout path');
-      return yield logoutHandler.call(this, next);
+      return logoutHandler(ctx);
     }
 
     // ignore not match path
     if (!loginRequired) {
-      debug('ignore %j', this.path);
-      return yield next;
+      debug('ignore %j', ctx.path);
+      return next();
     }
 
-    if (this.session[options.userField]
-      && options.loginCheck(this)) {
+    if (ctx.session[options.userField]
+      && options.loginCheck(ctx)) {
       // 4. user logined, next() handler
       debug('already logined');
-      return yield next;
+      return next();
     }
 
     // try to getUser directly
-    var user;
+    let user;
     try {
-      user = yield options.getUser(this);
+      user = await options.getUser(ctx);
     } catch (err) {
       console.error('[koa-userauth] options.getUser error: %s', err.stack);
     }
 
     if (!user) {
       debug('can not get user');
-      var ctx = this;
 
-      // make next handle a generator
-      // so it can use yield next in redirectHandle
-      var nextHandler = (function* () {
-        var redirectURL = ctx.url;
+      // make next handle an Async Function
+      // so it can use await next in redirectHandle
+      const nextHandler = async function () {
+        let redirectURL = ctx.url;
         try {
           redirectURL = encodeURIComponent(redirectURL);
         } catch (e) {
           // URIError: URI malformed
           // use source url
         }
-        var loginURL = options.loginPath + '?redirect=' + redirectURL;
+        const loginURL = options.loginPath + '?redirect=' + redirectURL;
         debug('redirect to %s', loginURL);
         redirect(ctx, loginURL);
-      })();
+      };
 
-      return yield options.redirectHandler.call(this, nextHandler, next);
+      return options.redirectHandler(ctx, nextHandler, next);
     }
 
     debug('get user directly');
-    var res = yield options.loginCallback(this, user);
-    var loginUser = res[0];
-    var redirectURL = res[1];
-    this.session[options.userField] = loginUser;
+    const res = await options.loginCallback(ctx, user);
+    debug('get user directly: ', res);
+    const loginUser = res[0];
+    const redirectURL = res[1];
+    ctx.session[options.userField] = loginUser;
     if (redirectURL) {
-      return redirect(this, redirectURL);
+      return redirect(ctx, redirectURL);
     }
-    yield next;
+    return next();
   };
 };
 
-function* defaultRedirectHandler(nextHandler) {
-  yield nextHandler;
+function defaultRedirectHandler(ctx, nextHandler, next) {
+  return nextHandler();
 }
 
-function* defaultLoginCallback(ctx, user) {
+/* istanbul ignore next */
+async function defaultLoginCallback(ctx, user) {
   return [user, null];
 }
 
-function* defaultLogoutCallback(ctx, user, callback) {
+/* istanbul ignore next */
+async function defaultLogoutCallback(ctx, user, callback) {
   return null;
 }
 
@@ -263,8 +257,8 @@ function redirect(ctx, url, status) {
  */
 
 function formatReferer(ctx, pathname, rootPath) {
-  var query = ctx.query;
-  var referer = query.redirect || ctx.get('referer') || rootPath;
+  const query = ctx.query;
+  let referer = query.redirect || ctx.get('referer') || rootPath;
   if (referer[0] !== '/') {
     // ignore protocol://xxx/abc
     referer = rootPath;
@@ -282,22 +276,22 @@ function formatReferer(ctx, pathname, rootPath) {
  */
 
 function login(options) {
-  var defaultHost = options.host;
-  return function* loginHandler() {
-    var loginCallbackPath = options.loginCallbackPath;
-    var loginPath = options.loginPath;
-    // this.session should be exists
-    if (this.session) {
-      this.session.userauthLoginReferer = formatReferer(this, loginPath, options.rootPath);
-      debug('set loginReferer into session: %s', this.session.userauthLoginReferer);
+  const defaultHost = options.host;
+  return async function loginHandler(ctx) {
+    const loginCallbackPath = options.loginCallbackPath;
+    const loginPath = options.loginPath;
+    // ctx.session should be exists
+    if (ctx.session) {
+      ctx.session.userauthLoginReferer = formatReferer(ctx, loginPath, options.rootPath);
+      debug('set loginReferer into session: %s', ctx.session.userauthLoginReferer);
     }
 
-    var host = defaultHost || this.host;
-    var protocol = options.protocol || this.protocol;
-    var currentURL = protocol + '://' + host + loginCallbackPath;
-    var loginURL = options.loginURLFormatter(currentURL, options.rootPath, this);
+    const host = defaultHost || ctx.host;
+    const protocol = options.protocol || ctx.protocol;
+    const currentURL = protocol + '://' + host + loginCallbackPath;
+    const loginURL = options.loginURLFormatter(currentURL, options.rootPath, ctx);
     debug('login redrect to loginURL: %s', loginURL);
-    redirect(this, loginURL);
+    redirect(ctx, loginURL);
   };
 }
 
@@ -308,27 +302,27 @@ function login(options) {
  */
 
 function loginCallback(options) {
-  return function *loginCallbackHandler() {
-    var referer = this.session.userauthLoginReferer || options.rootPath;
-    debug('loginReferer in session: %j', this.session.userauthLoginReferer);
-    var user = this.session[options.userField];
+  return async function loginCallbackHandler(ctx) {
+    let referer = ctx.session.userauthLoginReferer || options.rootPath;
+    debug('loginReferer in session: %j', ctx.session.userauthLoginReferer);
+    let user = ctx.session[options.userField];
     if (user) {
       // already login
-      return redirect(this, referer);
+      return redirect(ctx, referer);
     }
-    user = yield options.getUser(this);
+    user = await options.getUser(ctx);
     if (!user) {
-      return redirect(this, referer);
+      return redirect(ctx, referer);
     }
 
-    var res = yield options.loginCallback(this, user);
-    var loginUser = res[0];
-    var redirectURL = res[1];
-    this.session[options.userField] = loginUser;
+    const res = await options.loginCallback(ctx, user);
+    const loginUser = res[0];
+    const redirectURL = res[1];
+    ctx.session[options.userField] = loginUser;
     if (redirectURL) {
       referer = redirectURL;
     }
-    redirect(this, referer);
+    redirect(ctx, referer);
   };
 }
 
@@ -339,19 +333,19 @@ function loginCallback(options) {
  */
 
 function logout(options) {
-  return function* logoutHandler() {
-    var referer = formatReferer(this, options.logoutPath, options.rootPath);
-    var user = this.session[options.userField];
+  return async function logoutHandler(ctx) {
+    let referer = formatReferer(ctx, options.logoutPath, options.rootPath);
+    const user = ctx.session[options.userField];
     if (!user) {
-      return redirect(this, referer);
+      return redirect(ctx, referer);
     }
 
-    var redirectURL = yield options.logoutCallback(this, user);
+    const redirectURL = await options.logoutCallback(ctx, user);
 
-    this.session[options.userField] = null;
+    ctx.session[options.userField] = null;
     if (redirectURL) {
       referer = redirectURL;
     }
-    redirect(this, referer);
+    redirect(ctx, referer);
   };
 }

@@ -33,7 +33,7 @@ var koa = require('koa');
 var userauth = require('koa-userauth');
 var session = require('koa-generic-session');
 
-var app = koa();
+var app = new koa();
 app.keys = ['i m secret'];
 
 app.use(session());
@@ -44,7 +44,7 @@ app.use(userauth({
     return 'http://login.demo.com/login?redirect=' + url;
   },
   // login callback and getUser info handler
-  getUser: function* (this) {
+  getUser: async ctx => {
     var token = this.query.token;
     // get user
     return user;
@@ -72,11 +72,11 @@ we will use [path-match](https://github.com/expressjs/path-match) transfer it to
  *  - {String} [loginCallbackPath], default is `options.loginPath + '/callback'`.
  *  - {String} [logoutPath], default is '/logout'.
  *  - {String} [userField], logined user field name on `this.session`, default is 'user', `this.session.user`.
- *  - {Function* (ctx)} getUser, get user function, must get user info with `req`.
- *  - {Function* (ctx, user)} [loginCallback], you can handle user login logic here,return [user, redirectUrl]
+ *  - {Async Function (ctx)} getUser, get user function, must get user info with `req`.
+ *  - {Async Function (ctx, user)} [loginCallback], you can handle user login logic here,return [user, redirectUrl]
  *  - {Function(ctx)} [loginCheck], return true meaning logined. default is `true`.
- *  - {Function* (ctx, user)} [logoutCallback], you can handle user logout logic here.return redirectUrl
- * @return {Function* (next)} userauth middleware
+ *  - {Async Function (ctx, user)} [logoutCallback], you can handle user logout logic here.return redirectUrl
+ * @return {Async Function (next)} userauth middleware
  * @public
  */
 ```

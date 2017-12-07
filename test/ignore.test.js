@@ -1,81 +1,75 @@
 'use strict';
 
-var request = require('supertest');
-var koa = require('koa');
-var session = require('koa-generic-session');
-var route = require('koa-route');
-var pedding = require('pedding');
-var userauth = require('..');
-var createApp = require('./app');
+const request = require('supertest');
+const koa = require('koa');
+const session = require('koa-generic-session');
+const route = require('koa-route');
+const userauth = require('..');
+const createApp = require('./app');
 
-describe('test/ignore.test.js', function () {
-  it('should ignore /api/xxx', function (done) {
-    var app = createApp(null, '/api');
-    request(app)
+describe('test/ignore.test.js', () => {
+  it('should ignore /api/xxx', () => {
+    const app = createApp(null, '/api');
+    return request(app)
     .get('/api/xxx')
     .expect(200)
     .expect({
       user: null,
       message: 'GET /api/xxx'
-    }, done);
-  });
-
-  it('should ignore /api/xxx regex', function (done) {
-    done = pedding(2, done);
-
-    var app = createApp(null, /^\/api\//g);
-    request(app)
-    .get('/api/xxx')
-    .expect(200)
-    .expect({
-      user: null,
-      message: 'GET /api/xxx'
-    }, done);
-
-    request(app)
-    .get('/api/xxx')
-    .expect(200)
-    .expect({
-      user: null,
-      message: 'GET /api/xxx'
-    }, done);
-  });
-
-  it('should ignore /api/xxx when ignore is a function', function (done) {
-    done = pedding(2, done);
-    var app = createApp(null, function (path) {
-      return path.indexOf('/api/') >= 0;
     });
-    request(app)
+  });
+
+  it('should ignore /api/xxx regex', async () => {
+    const app = createApp(null, /^\/api\//g);
+    await request(app)
     .get('/api/xxx')
     .expect(200)
     .expect({
       user: null,
       message: 'GET /api/xxx'
-    }, done);
+    });
 
-    request(app)
-    .get('/user/xxx')
-    .expect(302)
-    .expect('Location', '/login?redirect=%2Fuser%2Fxxx', done);
+    await request(app)
+    .get('/api/xxx')
+    .expect(200)
+    .expect({
+      user: null,
+      message: 'GET /api/xxx'
+    });
   });
 
-  it('should /user 302 when ignore /api', function (done) {
-    var app = createApp(null, '/api');
-    request(app)
+  it('should ignore /api/xxx when ignore is a function', async () => {
+    const app = createApp(null, path => path.indexOf('/api/') >= 0);
+    await request(app)
+    .get('/api/xxx')
+    .expect(200)
+    .expect({
+      user: null,
+      message: 'GET /api/xxx'
+    });
+
+    await request(app)
     .get('/user/xxx')
     .expect(302)
-    .expect('Location', '/login?redirect=%2Fuser%2Fxxx', done);
+    .expect('Location', '/login?redirect=%2Fuser%2Fxxx');
   });
 
-  it('should not match any path when match and ignore all missing', function (done) {
-    var app = createApp();
-    request(app)
+  it('should /user 302 when ignore /api', () => {
+    const app = createApp(null, '/api');
+    return request(app)
+    .get('/user/xxx')
+    .expect(302)
+    .expect('Location', '/login?redirect=%2Fuser%2Fxxx');
+  });
+
+  it('should not match any path when match and ignore all missing', () => {
+    const app = createApp();
+    return request(app)
     .get('/')
     .expect(200)
     .expect({
       user: null,
       message: 'GET /'
-    }, done);
+    });
   });
 });
