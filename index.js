@@ -1,17 +1,17 @@
 'use strict';
 
-var debug = require('debug')('koa-userauth');
-var path = require('path');
-var is = require('is-type-of');
-var copy = require('copy-to');
-var urlparse = require('url').parse;
-var route = require('path-match')({
+const debug = require('debug')('koa-userauth');
+const path = require('path');
+const is = require('is-type-of');
+const copy = require('copy-to');
+const urlparse = require('url').parse;
+const route = require('path-match')({
   end: false,
   strict: false,
   sensitive: false
 });
 
-var defaultOptions = {
+const defaultOptions = {
   userField: 'user',
   rootPath: '/',
   loginPath: '/login',
@@ -52,7 +52,7 @@ module.exports = function (options) {
   if (options.rootPath !== '/') {
     if (process.platform === 'win32') {
       // rtrim last /, '/foo/' => '/foo'
-      var rootPath = options.rootPath.replace(/\/+$/, '');
+      const rootPath = options.rootPath.replace(/\/+$/, '');
       options.loginPath = rootPath + options.loginPath;
       options.logoutPath = rootPath + options.logoutPath;
       options.loginCallbackPath = rootPath + options.loginCallbackPath;
@@ -68,36 +68,28 @@ module.exports = function (options) {
   options.getUser = options.getUser;
   options.redirectHandler = options.redirectHandler || defaultRedirectHandler;
 
-  var match = options.match;
-  var ignore = options.ignore;
+  const match = options.match;
+  const ignore = options.ignore;
 
   // need login checker
-  var needLogin;
+  let needLogin;
 
   if (is.string(match)) {
     needLogin = route(match);
   } else if (is.regExp(match)) {
-    needLogin = function (path) {
-      return match.test(path);
-    };
+    needLogin = path => match.test(path);
   } else if (is.function(match)) {
     needLogin = match;
   }
 
   if (!is.function(needLogin)) {
     if (is.string(ignore)) {
-      var pathMatch = route(ignore);
-      needLogin = function (path) {
-        return !pathMatch(path);
-      };
+      const pathMatch = route(ignore);
+      needLogin = path => !pathMatch(path);
     } else if (is.regExp(ignore)) {
-      needLogin = function (path) {
-        return !(path && path.match(ignore));
-      };
+      needLogin = path => !(path && path.match(ignore));
     } else if (is.function(ignore)) {
-      needLogin = function (path, context) {
-        return !ignore(path, context);
-      };
+      needLogin = (path, context) => !ignore(path, context);
     } else {
       // ignore all
       needLogin = function () {};
@@ -109,9 +101,9 @@ module.exports = function (options) {
   options.logoutCallback = options.logoutCallback || defaultLogoutCallback;
   options.loginCheck = options.loginCheck || defaultLoginCheck;
 
-  var loginHandler = login(options);
-  var loginCallbackHandler = loginCallback(options);
-  var logoutHandler = logout(options);
+  const loginHandler = login(options);
+  const loginCallbackHandler = loginCallback(options);
+  const logoutHandler = logout(options);
 
   /**
    * login flow:
@@ -126,7 +118,7 @@ module.exports = function (options) {
    */
 
   return async function userauth(ctx, next) {
-    var loginRequired = !!needLogin(ctx.path, ctx);
+    const loginRequired = !!needLogin(ctx.path, ctx);
     debug('url: %s, path: %s, loginPath: %s, session exists: %s, login required: %s',
       ctx.url, ctx.path, options.loginPath, !!ctx.session, loginRequired);
 
@@ -173,7 +165,7 @@ module.exports = function (options) {
     }
 
     // try to getUser directly
-    var user;
+    let user;
     try {
       user = await options.getUser(ctx);
     } catch (err) {
@@ -183,17 +175,17 @@ module.exports = function (options) {
     if (!user) {
       debug('can not get user');
 
-      // make next handle a generator
+      // make next handle an Async Function
       // so it can use await next in redirectHandle
-      var nextHandler = async function () {
-        var redirectURL = ctx.url;
+      const nextHandler = async function () {
+        let redirectURL = ctx.url;
         try {
           redirectURL = encodeURIComponent(redirectURL);
         } catch (e) {
           // URIError: URI malformed
           // use source url
         }
-        var loginURL = options.loginPath + '?redirect=' + redirectURL;
+        const loginURL = options.loginPath + '?redirect=' + redirectURL;
         debug('redirect to %s', loginURL);
         redirect(ctx, loginURL);
       };
@@ -202,20 +194,20 @@ module.exports = function (options) {
     }
 
     debug('get user directly');
-    var res = await options.loginCallback(ctx, user);
+    const res = await options.loginCallback(ctx, user);
     debug('get user directly: ', res);
-    var loginUser = res[0];
-    var redirectURL = res[1];
+    const loginUser = res[0];
+    const redirectURL = res[1];
     ctx.session[options.userField] = loginUser;
     if (redirectURL) {
       return redirect(ctx, redirectURL);
     }
-    await next();
+    return next();
   };
 };
 
-async function defaultRedirectHandler(ctx, nextHandler, next) {
-  await nextHandler();
+function defaultRedirectHandler(ctx, nextHandler, next) {
+  return nextHandler();
 }
 
 /* istanbul ignore next */
@@ -265,8 +257,8 @@ function redirect(ctx, url, status) {
  */
 
 function formatReferer(ctx, pathname, rootPath) {
-  var query = ctx.query;
-  var referer = query.redirect || ctx.get('referer') || rootPath;
+  const query = ctx.query;
+  let referer = query.redirect || ctx.get('referer') || rootPath;
   if (referer[0] !== '/') {
     // ignore protocol://xxx/abc
     referer = rootPath;
@@ -284,20 +276,20 @@ function formatReferer(ctx, pathname, rootPath) {
  */
 
 function login(options) {
-  var defaultHost = options.host;
+  const defaultHost = options.host;
   return async function loginHandler(ctx) {
-    var loginCallbackPath = options.loginCallbackPath;
-    var loginPath = options.loginPath;
+    const loginCallbackPath = options.loginCallbackPath;
+    const loginPath = options.loginPath;
     // ctx.session should be exists
     if (ctx.session) {
       ctx.session.userauthLoginReferer = formatReferer(ctx, loginPath, options.rootPath);
       debug('set loginReferer into session: %s', ctx.session.userauthLoginReferer);
     }
 
-    var host = defaultHost || ctx.host;
-    var protocol = options.protocol || ctx.protocol;
-    var currentURL = protocol + '://' + host + loginCallbackPath;
-    var loginURL = options.loginURLFormatter(currentURL, options.rootPath, ctx);
+    const host = defaultHost || ctx.host;
+    const protocol = options.protocol || ctx.protocol;
+    const currentURL = protocol + '://' + host + loginCallbackPath;
+    const loginURL = options.loginURLFormatter(currentURL, options.rootPath, ctx);
     debug('login redrect to loginURL: %s', loginURL);
     redirect(ctx, loginURL);
   };
@@ -311,9 +303,9 @@ function login(options) {
 
 function loginCallback(options) {
   return async function loginCallbackHandler(ctx) {
-    var referer = ctx.session.userauthLoginReferer || options.rootPath;
+    let referer = ctx.session.userauthLoginReferer || options.rootPath;
     debug('loginReferer in session: %j', ctx.session.userauthLoginReferer);
-    var user = ctx.session[options.userField];
+    let user = ctx.session[options.userField];
     if (user) {
       // already login
       return redirect(ctx, referer);
@@ -323,9 +315,9 @@ function loginCallback(options) {
       return redirect(ctx, referer);
     }
 
-    var res = await options.loginCallback(ctx, user);
-    var loginUser = res[0];
-    var redirectURL = res[1];
+    const res = await options.loginCallback(ctx, user);
+    const loginUser = res[0];
+    const redirectURL = res[1];
     ctx.session[options.userField] = loginUser;
     if (redirectURL) {
       referer = redirectURL;
@@ -342,13 +334,13 @@ function loginCallback(options) {
 
 function logout(options) {
   return async function logoutHandler(ctx) {
-    var referer = formatReferer(ctx, options.logoutPath, options.rootPath);
-    var user = ctx.session[options.userField];
+    let referer = formatReferer(ctx, options.logoutPath, options.rootPath);
+    const user = ctx.session[options.userField];
     if (!user) {
       return redirect(ctx, referer);
     }
 
-    var redirectURL = await options.logoutCallback(ctx, user);
+    const redirectURL = await options.logoutCallback(ctx, user);
 
     ctx.session[options.userField] = null;
     if (redirectURL) {

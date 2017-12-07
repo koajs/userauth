@@ -11,16 +11,14 @@ function match(path) {
   return path.indexOf('/user') === 0;
 }
 
-describe('test/index.test.js', function () {
-  describe('userauth([match, ]options)', function () {
+describe('test/index.test.js', () => {
+  describe('userauth([match, ]options)', () => {
     it('should support match="" to match all', () => {
       var app = new koa();
       app.keys = ['i m secret'];
       app.use(session());
       app.use(userauth('', {
-        loginURLFormater: function (url) {
-          return 'http://auth.example.com/login';
-        },
+        loginURLFormater: () => 'http://auth.example.com/login',
         getUser: async () => null,
       }));
       return request(app.callback())
@@ -35,9 +33,7 @@ describe('test/index.test.js', function () {
       app.use(session());
       app.use(userauth({
         match: '',
-        loginURLFormater: function (url) {
-          return 'http://auth.example.com/login';
-        },
+        loginURLFormater: () => 'http://auth.example.com/login',
         getUser: async () => null,
       }));
       return request(app.callback())
@@ -52,9 +48,7 @@ describe('test/index.test.js', function () {
       app.use(session());
       app.use(userauth({
         match: null,
-        loginURLFormater: function (url) {
-          return 'http://auth.example.com/login';
-        },
+        loginURLFormater: () => 'http://auth.example.com/login',
         getUser: async () => null,
       }));
       app.use(async ctx => ctx.body = 'pass');
@@ -70,9 +64,7 @@ describe('test/index.test.js', function () {
       app.use(session());
       app.use(userauth({
         match: '',
-        loginURLFormater: function (url) {
-          return 'http://auth.example.com/login';
-        },
+        loginURLFormater: () => 'http://auth.example.com/login',
         getUser: async () => null,
       }));
       return request(app.callback())
@@ -88,9 +80,7 @@ describe('test/index.test.js', function () {
       app.use(session());
       app.use(userauth({
         match: '',
-        loginURLFormater: function (url) {
-          return 'https://auth.example.com/login?callback=' + url;
-        },
+        loginURLFormater: url => 'https://auth.example.com/login?callback=' + url,
         getUser: async () => null,
       }));
       return request(app.callback())
@@ -107,9 +97,7 @@ describe('test/index.test.js', function () {
       app.use(userauth({
         match: '',
         rootPath: '/foo',
-        loginURLFormater: function (url) {
-          return 'http://auth.example.com/login';
-        },
+        loginURLFormater: () => 'http://auth.example.com/login',
         getUser: async () => null,
       }));
       return request(app.callback())
@@ -123,9 +111,7 @@ describe('test/index.test.js', function () {
       app.keys = ['i m secret'];
       app.use(userauth({
         match: '/user',
-        loginURLFormater: function (url) {
-          return 'http://auth.example.com/login';
-        },
+        loginURLFormater: () => 'http://auth.example.com/login',
         getUser: async () => null,
       }));
       return request(app.callback())
@@ -139,9 +125,7 @@ describe('test/index.test.js', function () {
       app.keys = ['i m secret'];
       app.use(userauth({
         match: '/user',
-        loginURLFormater: function (url) {
-          return 'http://auth.example.com/login';
-        },
+        loginURLFormater: () => 'http://auth.example.com/login',
         getUser: async () => null,
       }));
       app.use(async ctx => ctx.body = 'pass');

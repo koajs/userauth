@@ -39,9 +39,7 @@ describe('test/ignore.test.js', () => {
   });
 
   it('should ignore /api/xxx when ignore is a function', async () => {
-    const app = createApp(null, function (path) {
-      return path.indexOf('/api/') >= 0;
-    });
+    const app = createApp(null, path => path.indexOf('/api/') >= 0);
     await request(app)
     .get('/api/xxx')
     .expect(200)
