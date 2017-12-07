@@ -218,10 +218,12 @@ async function defaultRedirectHandler(ctx, nextHandler, next) {
   await nextHandler();
 }
 
+/* istanbul ignore next */
 async function defaultLoginCallback(ctx, user) {
   return [user, null];
 }
 
+/* istanbul ignore next */
 async function defaultLogoutCallback(ctx, user, callback) {
   return null;
 }
