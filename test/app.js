@@ -90,7 +90,8 @@ module.exports = function(match, ignore) {
   app.use(function* (next) {
     this.body = {
       user: this.session.user || null,
-      message: this.method + ' ' + this.url
+      message: this.method + ' ' + this.url,
+      userauthLoginReferer: this.session.userauthLoginReferer,
     };
   });
   return app.callback();

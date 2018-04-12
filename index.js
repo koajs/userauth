@@ -308,9 +308,11 @@ function login(options) {
  */
 
 function loginCallback(options) {
-  return function *loginCallbackHandler() {
+  return function* loginCallbackHandler() {
     var referer = this.session.userauthLoginReferer || options.rootPath;
-    debug('loginReferer in session: %j', this.session.userauthLoginReferer);
+    debug('[loginCallbackHandler] loginReferer in session: %j', this.session.userauthLoginReferer);
+    // cleanup the userauthLoginReferer on session
+    this.session.userauthLoginReferer = undefined;
     var user = this.session[options.userField];
     if (user) {
       // already login
