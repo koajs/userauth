@@ -421,35 +421,42 @@ describe('test/index.test.js', function () {
 
       it('should return 200 status and user info after user logined', function (done) {
         request(app)
-        .get('/login/callback')
-        .set('mocklogin', 1)
-        .expect('Location', '/')
+        .get('/login?redirect=%2Fuser%2Ffoo')
         .expect(302, function (err, res) {
           should.not.exist(err);
           var cookie = res.headers['set-cookie'].join(';');
+
           request(app)
-          .get('/')
+          .get('/login/callback')
+          .set('mocklogin', 1)
           .set({ Cookie: 'cookie2=1234; ' + cookie })
-          .expect({
-            user: {
-              nick: 'mock user',
-              userid: 1234
-            },
-            message: 'GET /'
-          })
-          .expect(200, function (err, res) {
-            // logout
+          .expect('Location', '/user/foo')
+          .expect(302, function (err, res) {
             should.not.exist(err);
             request(app)
-            .get('/logout')
+            .get('/user/foo')
             .set({ Cookie: 'cookie2=1234; ' + cookie })
-            .expect('Location', '/')
-            .expect(302, function () {
+            .expect({
+              user: {
+                nick: 'mock user',
+                userid: 1234
+              },
+              message: 'GET /user/foo'
+            })
+            .expect(200, function (err, res) {
+              // logout
+              should.not.exist(err);
               request(app)
               .get('/logout')
-              .set({ referer: '/login' })
-              .expect('Location', '/login')
-              .expect(302, done);
+              .set({ Cookie: 'cookie2=1234; ' + cookie })
+              .expect('Location', '/')
+              .expect(302, function () {
+                request(app)
+                .get('/logout')
+                .set({ referer: '/login' })
+                .expect('Location', '/login')
+                .expect(302, done);
+              });
             });
           });
         });
