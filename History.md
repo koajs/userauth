@@ -1,4 +1,13 @@
 
+2.0.1 / 2018-04-12
+==================
+
+**features**
+  * [[`e4dc3fc`](http://github.com/koajs/userauth/commit/e4dc3fc828f47a08ff85025694402884b0568831)] - feat: support koa2 (#32) (Hengfei Zhuang <<zhuanghengfei@gmail.com>>)
+
+**fixes**
+  * [[`f79d431`](http://github.com/koajs/userauth/commit/f79d43107381dbafe14e0681df0dd6c474cae08d)] - fix: should cleanup userauthLoginReferer on session (#33) (fengmk2 <<fengmk2@gmail.com>>)
+
 1.4.3 / 2017-10-19
 ==================
 
