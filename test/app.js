@@ -89,7 +89,8 @@ module.exports = function(match, ignore) {
   app.use(async (ctx, next) => {
     ctx.body = {
       user: ctx.session.user || null,
-      message: ctx.method + ' ' + ctx.url
+      message: ctx.method + ' ' + ctx.url,
+      userauthLoginReferer: ctx.session.userauthLoginReferer,
     };
   });
 

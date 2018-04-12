@@ -305,6 +305,8 @@ function loginCallback(options) {
   return async function loginCallbackHandler(ctx) {
     let referer = ctx.session.userauthLoginReferer || options.rootPath;
     debug('loginReferer in session: %j', ctx.session.userauthLoginReferer);
+    // cleanup the userauthLoginReferer on session
+    ctx.session.userauthLoginReferer = undefined;
     let user = ctx.session[options.userField];
     if (user) {
       // already login
