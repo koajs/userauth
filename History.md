@@ -1,4 +1,13 @@
 
+1.4.4 / 2018-04-12
+==================
+
+**fixes**
+  * [[`229035b`](http://github.com/koajs/userauth/commit/229035be6010bbb2edcbb346bc9c969dee996b54)] - fix: should cleanup userauthLoginReferer on session (#34) (fengmk2 <<fengmk2@gmail.com>>)
+
+**others**
+  * [[`860dac2`](http://github.com/koajs/userauth/commit/860dac216eda259e2dfba3b1fd48fe8c5a052f68)] - chore: add latest-1 tag on npm (fengmk2 <<fengmk2@gmail.com>>)
+
 1.4.3 / 2017-10-19
 ==================
 
