@@ -365,12 +365,18 @@ describe('test/index.test.js', () => {
 
       it('should return 200 status and user info after user logined', async () => {
         let res = await request(app)
-        .get('/login/callback')
-        .set('mocklogin', 1)
-        .expect('Location', '/')
+        .get('/login?redirect=%2F')
         .expect(302);
 
         let cookie = res.headers['set-cookie'].join(';');
+
+        res = await request(app)
+        .get('/login/callback')
+        .set('mocklogin', 1)
+        .set({ Cookie: 'cookie2=1234; ' + cookie })
+        .expect('Location', '/')
+        .expect(302);
+
         res = await request(app)
         .get('/')
         .set({ Cookie: 'cookie2=1234; ' + cookie })
