@@ -309,7 +309,14 @@ function login(options) {
 
 function loginCallback(options) {
   return function* loginCallbackHandler() {
+    var backurl = this.query.BACK_URL;
+    if(backurl.indexOf('BACK_URL_PATH=')>-1){
+      var backurlPath =backurl.split('BACK_URL_PATH=')[1];
+    }
     var referer = this.session.userauthLoginReferer || options.rootPath;
+    if(!this.session.userauthLoginReferer){
+      referer = backurlPath;
+    }
     debug('[loginCallbackHandler] loginReferer in session: %j', this.session.userauthLoginReferer);
     // cleanup the userauthLoginReferer on session
     this.session.userauthLoginReferer = undefined;
