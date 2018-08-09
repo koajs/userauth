@@ -122,7 +122,7 @@ module.exports = function (options) {
     debug('url: %s, path: %s, loginPath: %s, session exists: %s, login required: %s',
       ctx.url, ctx.path, options.loginPath, !!ctx.session, loginRequired);
 
-    if (!ctx.session) {
+    if (!ctx.session || !ctx.session[options.userField]) {
       debug('ctx.session not exists');
       // ignore not match path
       if (!loginRequired) {
