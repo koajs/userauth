@@ -122,13 +122,14 @@ module.exports = function (options) {
     debug('url: %s, path: %s, loginPath: %s, session exists: %s, login required: %s',
       ctx.url, ctx.path, options.loginPath, !!ctx.session, loginRequired);
 
-    if (!ctx.session || !ctx.session[options.userField]) {
+    // ignore not match path
+    if (!loginRequired) {
+      debug('not match needLogin path, %j', ctx.path);
+      return next();
+    }
+
+    if (!ctx.session) {
       debug('ctx.session not exists');
-      // ignore not match path
-      if (!loginRequired) {
-        debug('not match needLogin path, %j', ctx.path);
-        return next();
-      }
       debug('relogin again');
       return loginHandler(ctx);
     }
@@ -151,11 +152,11 @@ module.exports = function (options) {
       return logoutHandler(ctx);
     }
 
-    // ignore not match path
-    if (!loginRequired) {
-      debug('ignore %j', ctx.path);
-      return next();
-    }
+    // // ignore not match path
+    // if (!loginRequired) {
+    //   debug('ignore %j', ctx.path);
+    //   return next();
+    // }
 
     if (ctx.session[options.userField]
       && options.loginCheck(ctx)) {
