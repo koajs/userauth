@@ -129,8 +129,7 @@ module.exports = function (options) {
     }
 
     if (!ctx.session) {
-      debug('ctx.session not exists');
-      debug('relogin again');
+      debug('ctx.session not exists, relogin again');
       return loginHandler(ctx);
     }
 
@@ -151,12 +150,6 @@ module.exports = function (options) {
       debug('match logout path');
       return logoutHandler(ctx);
     }
-
-    // // ignore not match path
-    // if (!loginRequired) {
-    //   debug('ignore %j', ctx.path);
-    //   return next();
-    // }
 
     if (ctx.session[options.userField]
       && options.loginCheck(ctx)) {
