@@ -33,6 +33,7 @@ const defaultOptions = {
  *  - {Async Function (ctx, user)} [loginCallback], you can handle user login logic here,return [user, redirectUrl]
  *  - {Function(ctx)} [loginCheck], return true meaning logined. default is `true`.
  *  - {Async Function (ctx, user)} [logoutCallback], you can handle user logout logic here.return redirectUrl
+ *  - {Function(ctx)} [getRedirectTarget], customize how to get the redirect target after login
  * @return {Async Function (next)} userauth middleware
  * @public
  */
@@ -303,7 +304,13 @@ function login(options) {
 
 function loginCallback(options) {
   return async function loginCallbackHandler(ctx) {
-    let referer = ctx.session.userauthLoginReferer || options.rootPath;
+    let referer;
+    // customize how to get redirect target
+    if (options.getRedirectTarget) {
+      referer = options.getRedirectTarget(ctx);
+    }
+    if (!referer) referer = ctx.session.userauthLoginReferer || options.rootPath;
+
     debug('loginReferer in session: %j', ctx.session.userauthLoginReferer);
     // cleanup the userauthLoginReferer on session
     ctx.session.userauthLoginReferer = undefined;

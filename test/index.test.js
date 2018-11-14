@@ -14,7 +14,7 @@ function match(path) {
 describe('test/index.test.js', () => {
   describe('userauth([match, ]options)', () => {
     it('should support match="" to match all', () => {
-      var app = new koa();
+      const app = new koa();
       app.keys = ['i m secret'];
       app.use(session());
       app.use(userauth('', {
@@ -28,7 +28,7 @@ describe('test/index.test.js', () => {
     });
 
     it('should support options.match="" to match all', () => {
-      var app = new koa();
+      const app = new koa();
       app.keys = ['i m secret'];
       app.use(session());
       app.use(userauth({
@@ -43,7 +43,7 @@ describe('test/index.test.js', () => {
     });
 
     it('should support options.match=null to not match all', () => {
-      var app = new koa();
+      const app = new koa();
       app.keys = ['i m secret'];
       app.use(session());
       app.use(userauth({
@@ -59,7 +59,7 @@ describe('test/index.test.js', () => {
     });
 
     it('should GET /login redirect to login url', () => {
-      var app = new koa();
+      const app = new koa();
       app.keys = ['i m secret'];
       app.use(session());
       app.use(userauth({
@@ -74,7 +74,7 @@ describe('test/index.test.js', () => {
     });
 
     it('should support https', () => {
-      var app = new koa();
+      const app = new koa();
       app.proxy = true;
       app.keys = ['i m secret'];
       app.use(session());
@@ -91,7 +91,7 @@ describe('test/index.test.js', () => {
     });
 
     it('should support rootPath=/foo', () => {
-      var app = new koa();
+      const app = new koa();
       app.keys = ['i m secret'];
       app.use(session());
       app.use(userauth({
@@ -107,7 +107,7 @@ describe('test/index.test.js', () => {
     });
 
     it('should always redirect to login page when session not exists', () => {
-      var app = new koa();
+      const app = new koa();
       app.keys = ['i m secret'];
       app.use(userauth({
         match: '/user',
@@ -121,7 +121,7 @@ describe('test/index.test.js', () => {
     });
 
     it('should pass when session not exists and not match need login', () => {
-      var app = new koa();
+      const app = new koa();
       app.keys = ['i m secret'];
       app.use(userauth({
         match: '/user',
@@ -141,9 +141,9 @@ describe('test/index.test.js', () => {
     ['regexp', /^\/user/],
     ['function', match],
   ].forEach(function (matchs) {
-    var type = matchs[0];
-    var match = matchs[1];
-    var app = createApp(match);
+    const type = matchs[0];
+    const match = matchs[1];
+    const app = createApp({ match });
     describe('with ' + type, () => {
       afterEach(mm.restore);
 
@@ -284,6 +284,32 @@ describe('test/index.test.js', () => {
         .set('Cookie', cookie)
         .set('mocklogin', 1)
         .expect('Location', '/')
+        .expect(302);
+      });
+
+      it('should login callback redirect success with ctx.getRedirectTarget', async () => {
+        let res;
+        let cookie;
+        const app = createApp({
+          match,
+          getRedirectTarget(ctx) {
+            return '/foo';
+          }
+        })
+        res = await request(app)
+        .get('/login')
+        .set('Referer', '/foo/bar')
+        .expect('Location', /^\/mocklogin\?redirect/)
+        .expect('Set-Cookie', /^koa\.sid/)
+        .expect(302);
+
+        cookie = res.headers['set-cookie'].join(';');
+        // should login redirect to /
+        await request(app)
+        .get('/login/callback')
+        .set('Cookie', cookie)
+        .set('mocklogin', 1)
+        .expect('Location', '/foo')
         .expect(302);
       });
 
