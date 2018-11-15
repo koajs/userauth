@@ -76,6 +76,7 @@ we will use [path-match](https://github.com/expressjs/path-match) transfer it to
  *  - {Async Function (ctx, user)} [loginCallback], you can handle user login logic here,return [user, redirectUrl]
  *  - {Function(ctx)} [loginCheck], return true meaning logined. default is `true`.
  *  - {Async Function (ctx, user)} [logoutCallback], you can handle user logout logic here.return redirectUrl
+ *  - {Function(ctx)} [getRedirectTarget], customize how to get the redirect target after login
  * @return {Async Function (next)} userauth middleware
  * @public
  */

@@ -9,7 +9,7 @@ const createApp = require('./app');
 
 describe('test/ignore.test.js', () => {
   it('should ignore /api/xxx', () => {
-    const app = createApp(null, '/api');
+    const app = createApp({ match: null, ignore: '/api' });
     return request(app)
     .get('/api/xxx')
     .expect(200)
@@ -20,7 +20,7 @@ describe('test/ignore.test.js', () => {
   });
 
   it('should ignore /api/xxx regex', async () => {
-    const app = createApp(null, /^\/api\//g);
+    const app = createApp({ match: null, ignore: /^\/api\//g });
     await request(app)
     .get('/api/xxx')
     .expect(200)
@@ -39,7 +39,7 @@ describe('test/ignore.test.js', () => {
   });
 
   it('should ignore /api/xxx when ignore is a function', async () => {
-    const app = createApp(null, path => path.indexOf('/api/') >= 0);
+    const app = createApp({ match: null, ignore: path => path.indexOf('/api/') >= 0 });
     await request(app)
     .get('/api/xxx')
     .expect(200)
@@ -55,7 +55,7 @@ describe('test/ignore.test.js', () => {
   });
 
   it('should /user 302 when ignore /api', () => {
-    const app = createApp(null, '/api');
+    const app = createApp({ match: null, ignore: '/api' });
     return request(app)
     .get('/user/xxx')
     .expect(302)
