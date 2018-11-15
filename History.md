@@ -1,4 +1,13 @@
 
+2.1.0 / 2018-11-15
+==================
+
+**features**
+  * [[`dcbdb0a`](http://github.com/koajs/userauth/commit/dcbdb0a6356253a52bb5a2b27571b28b873b351f)] - feat: support options.getRedirectTarget (#37) (Yiyu He <<dead_horse@qq.com>>)
+
+**fixes**
+  * [[`f79d431`](http://github.com/koajs/userauth/commit/f79d43107381dbafe14e0681df0dd6c474cae08d)] - fix: should cleanup userauthLoginReferer on session (#33) (fengmk2 <<fengmk2@gmail.com>>),
+
 2.0.1 / 2018-04-12
 ==================
 
