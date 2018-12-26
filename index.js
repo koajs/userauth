@@ -124,7 +124,7 @@ module.exports = function (options) {
       ctx.url, ctx.path, options.loginPath, !!ctx.session, loginRequired);
 
     if (!ctx.session) {
-      debug('ctx.session not exists');
+      debug('ctx.session does not exist');
       // ignore not match path
       if (!loginRequired) {
         debug('not match needLogin path, %j', ctx.path);
@@ -142,7 +142,7 @@ module.exports = function (options) {
 
     // get login callback
     if (ctx.path === options.loginCallbackPath) {
-      debug('match login clalback path');
+      debug('match login callback path');
       return loginCallbackHandler(ctx);
     }
 
@@ -161,7 +161,7 @@ module.exports = function (options) {
     if (ctx.session[options.userField]
       && options.loginCheck(ctx)) {
       // 4. user logined, next() handler
-      debug('already logined');
+      debug('already logged in');
       return next();
     }
 
