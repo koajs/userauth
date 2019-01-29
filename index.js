@@ -119,7 +119,12 @@ module.exports = function (options) {
    */
 
   return async function userauth(ctx, next) {
-    const loginRequired = !!needLogin(ctx.path, ctx);
+    let loginRequired = null;
+    if(is.asyncFunction(needLogin)){
+      const loginRequired = !!(await needLogin(ctx.path, ctx));
+    }else{
+      const loginRequired = !!needLogin(ctx.path, ctx);
+    }
     debug('url: %s, path: %s, loginPath: %s, session exists: %s, login required: %s',
       ctx.url, ctx.path, options.loginPath, !!ctx.session, loginRequired);
 
