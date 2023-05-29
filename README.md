@@ -1,27 +1,16 @@
-koa-userauth
-=======
+# koa-userauth
 
 [![NPM version][npm-image]][npm-url]
-[![build status][travis-image]][travis-url]
-[![Coveralls][coveralls-image]][coveralls-url]
-[![David deps][david-image]][david-url]
 
 [npm-image]: https://img.shields.io/npm/v/koa-userauth.svg?style=flat-square
 [npm-url]: https://npmjs.org/package/koa-userauth
-[travis-image]: https://img.shields.io/travis/koajs/userauth.svg?style=flat-square
-[travis-url]: https://travis-ci.org/koajs/userauth
-[coveralls-image]: https://img.shields.io/coveralls/koajs/userauth.svg?style=flat-square
-[coveralls-url]: https://coveralls.io/r/koajs/userauth?branch=master
-[david-image]: https://img.shields.io/david/koajs/userauth.svg?style=flat-square
-[david-url]: https://david-dm.org/koajs/userauth
-
 
 `koa` user auth abstraction layer middleware.
 
 ## Install
 
 ```bash
-$ npm install koa-userauth
+npm install koa-userauth
 ```
 
 ## Usage
@@ -95,7 +84,6 @@ we will use [path-match](https://github.com/expressjs/path-match) transfer it to
 ![userauth flow](https://www.lucidchart.com/publicSegments/view/54ede23d-a75c-4690-9408-33a30a008a99/image.png)
 
 > [Source image file](https://www.lucidchart.com/documents/edit/4749f226-b75f-42ef-934f-b89f7bd68c7f?driveId=0ACmMEQjF7GJGUk9PVA)
-
 
 ## License
 
