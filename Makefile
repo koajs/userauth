@@ -2,13 +2,6 @@ TESTS = test/*.test.js
 REPORTER = spec
 TIMEOUT = 3000
 MOCHA_OPTS =
-REGISTRY = --registry=https://registry.npmmirror.com
-
-install:
-	@npm install $(REGISTRY)
-
-jshint: install
-	@-./node_modules/.bin/jshint ./
 
 test:
 	@NODE_ENV=test node \
@@ -29,5 +22,3 @@ test-cov:
 		--require should-http \
 		$(MOCHA_OPTS) \
 		$(TESTS)
-
-.PHONY: test test-all
