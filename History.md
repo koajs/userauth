@@ -1,4 +1,11 @@
 
+2.2.0 / 2023-05-29
+==================
+
+**others**
+  * [[`fd9e7a9`](http://github.com/koajs/userauth/commit/fd9e7a92d4284219e6a455a506c92959637a5bee)] - deps: use ^ instead of ~ (#42) (fengmk2 <<fengmk2@gmail.com>>)
+  * [[`6d848cb`](http://github.com/koajs/userauth/commit/6d848cbdea4e8fb7dfe50418e009c120bdd1cab9)] - chore: fix typos & drop legacy workaround (#38) (Chen Yangjian <<252317+cyjake@users.noreply.github.com>>)
+
 2.1.0 / 2018-11-15
 ==================
 
