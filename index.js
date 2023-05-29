@@ -1,6 +1,6 @@
 'use strict';
 
-const debug = require('debug')('koa-userauth');
+const debug = require('util').debuglog('koa-userauth');
 const path = require('path');
 const is = require('is-type-of');
 const copy = require('copy-to');

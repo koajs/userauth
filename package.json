@@ -4,7 +4,8 @@
   "description": "user auth middleware for koa",
   "main": "index.js",
   "scripts": {
-    "test": "make test"
+    "test": "make test",
+    "ci": "make test-cov"
   },
   "repository": {
     "type": "git",
@@ -26,7 +27,6 @@
   },
   "homepage": "https://github.com/koajs/userauth",
   "devDependencies": {
-    "autod": "*",
     "istanbul": "next",
     "jshint": "^2.9.4",
     "koa": "^2.4.1",
@@ -39,10 +39,9 @@
     "supertest": "^3.0.0"
   },
   "dependencies": {
-    "copy-to": "~2.0.1",
-    "debug": "~3.1.0",
-    "is-type-of": "~1.2.0",
-    "path-match": "~1.2.2"
+    "copy-to": "^2.0.1",
+    "is-type-of": "^1.4.0",
+    "path-match": "^1.2.4"
   },
   "engines": {
     "node": ">= 8"
