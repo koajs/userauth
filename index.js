@@ -236,7 +236,7 @@ function defaultLoginCheck() {
  */
 
 function redirect(ctx, url, status) {
-  if (ctx.accepts('html', 'json') === 'json') {
+  if (ctx.accepts('json', 'html') === 'json') {
     ctx.set('Location', url);
     ctx.status = 401;
     ctx.body = {
